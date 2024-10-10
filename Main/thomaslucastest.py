@@ -1,6 +1,7 @@
 import pygame
 import sys
 import random
+from pygame.locals import *
 
 pygame.init()
 
@@ -25,9 +26,20 @@ bg = pygame.transform.scale(bg_original, (SCREEN_WIDTH, SCREEN_HEIGHT))
 class Enemy(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.image = pygame.image.load('C:/Users/thoma/Documents/GitHub/1010h-Team/Sprites/female/doux/base/move.png').convert_alpha()
+        sprite_sheet = pygame.image.load('C:/Users/thoma/Documents/GitHub/1010h-Team/Sprites/male/cole/base/move.png').convert_alpha()
+        
+        frame_width = 24
+        frame_height = 24
+
+        frame = sprite_sheet.subsurface(pygame.Rect(1 * frame_width, 0, frame_width, frame_height))
+        frame = pygame.transform.scale(frame, (100, 100))
+        frame = pygame.transform.flip(frame, True, False)
+        self.image = frame
+
         self.rect = self.image.get_rect()
-        self.rect.center = (random.randint(40, SCREEN_WIDTH - 40), 0)
+        self.rect.center = (1150, 465)
+
+
 
 
     def Move(self):
@@ -38,6 +50,14 @@ class Enemy(pygame.sprite.Sprite):
 
     def Draw(self, surface):
         surface.blit(self.image, self.rect)
+
+    def Check_Collision(self, player):
+            if self.rect.colliderect(player.rect):
+                player.rect.center = (160, SCREEN_HEIGHT - 300)
+            else:
+                pass
+                
+
 
 
 class Player(pygame.sprite.Sprite):
@@ -55,35 +75,37 @@ class Player(pygame.sprite.Sprite):
             frame = sprite_sheet.subsurface(pygame.Rect(i * frame_width, 0, frame_width, frame_height))
             frame = pygame.transform.scale(frame, (100, 100))
             self.frames.append(frame)
-
+        #initialization of all the elements needed to function as a playable character
         self.current_frame= 0
         self.image = self.frames[self.current_frame]
         self.rect = self.image.get_rect()
         self.rect.center = (160, SCREEN_HEIGHT - 300)
         self.is_jumping = False
         self.velocity_y = 0
-        self.gravity = 1
-        self.jump_strength = -15
+        self.gravity = 1.5
+        self.jump_strength = -22.5
         self.is_moving = False
         self.is_facing_right = True
+        self.movement_speed = 6
 
         self.animation_delay = 5
         self.animation_counter = 0
 
-    def Update(self):
+    #Checks for updates in the players inputs/movements
+    def Update(self, platforms, enemy):
         pressed_keys = pygame.key.get_pressed()
         self.is_moving = False
 
         if self.rect.left > 0:
             if pressed_keys[pygame.K_LEFT]:
-                self.rect.move_ip(-5, 0)
+                self.rect.move_ip(-7, 0)
                 self.is_moving = True
                 if self.is_facing_right:
                     self.Flip_Sprites()
                 self.is_facing_right = False
 
         if pressed_keys[pygame.K_RIGHT]:
-            self.rect.move_ip(5, 0)
+            self.rect.move_ip(7, 0)
             self.is_moving = True
             if not self.is_facing_right:
                 self.Flip_Sprites()
@@ -98,6 +120,11 @@ class Player(pygame.sprite.Sprite):
                 self.current_frame = (self.current_frame + 1) % len(self.frames)
                 self.image = self.frames[self.current_frame]
                 self.animation_counter = 0
+
+        for platform in platforms:
+            platform.Check_Collision(self)
+
+        enemy.Check_Collision(self)
 
     def Flip_Sprites(self):
         for i in range(len(self.frames)):
@@ -122,22 +149,58 @@ class Player(pygame.sprite.Sprite):
     def Draw(self, surface):
         surface.blit(self.image, self.rect)
 
+class Platform:
+    def __init__(self, x, y, width, height):
+        super().__init__()
+        self.rect = pygame.Rect(x, y, width, height)
+    
+    def Draw(self, surface):
+        pygame.draw.rect(surface, (0, 255, 0), self.rect)
+    
+    def Check_Collision(self, player): 
+        #If player is above and falling, then you check for collision
+        if player.velocity_y > 0 and player.rect.bottom <=self.rect.top and \
+            player.rect.bottom + player.velocity_y >= self.rect.top and \
+            self.rect.left < player.rect.centerx < self.rect.right:
+            
+            player.rect.bottom = self.rect.top
+            player.velocity_y = 0
+            player.is_jumping = False
+        else:
+            if not (self.rect.left < player.rect.centerx < self.rect.right) and player.rect.bottom == self.rect.top:
+                player.is_jumping = True
 
-P1 = Player()
-#E1 = Enemy()
+def main():
+    P1 = Player()
+    E1 = Enemy()
+    platforms = [
+        Platform(400, 700, 200, 20),
+        Platform(700, 600, 200, 20),
+        Platform(1000, 500, 200, 20),
+    ]
+    #Game Loop
+    while True:
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                return None
+            elif event.type == KEYDOWN:
+                if event.key == K_ESCAPE:
+                    pygame.quit()
+                    sys.exit()
+        #checks for updates using update function
+        P1.Update(platforms, E1)
+        #E1.Move()
 
-while True:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
+        DISPLAYSURF.blit(bg, (0, 0))
 
-    P1.Update()
-    #E1.Move()
+        for platform in platforms:
+            platform.Draw(DISPLAYSURF)
 
-    DISPLAYSURF.blit(bg, (0, 0))
-    P1.Draw(DISPLAYSURF)
-    #E1.Draw(DISPLAYSURF)
+        P1.Draw(DISPLAYSURF)
+        E1.Draw(DISPLAYSURF)
 
-    pygame.display.update()
-    FramePerSec.tick(FPS)
+        pygame.display.update()
+        FramePerSec.tick(FPS)
+
+if __name__ == '__main__':
+    main()
