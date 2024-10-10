@@ -46,7 +46,7 @@ def load_sprite_sheets(base_dir, char_dir, action_dir, width, height, direction=
 
 # Player class
 class Player(pygame.sprite.Sprite):
-    SPRITES = load_sprite_sheets("assets", "male", "olaf/base", 24, 24, True)  # Use a cropped 32x32 size
+    SPRITES = load_sprite_sheets("assets", "male", "olaf/base", 24, 24, True) 
     
     def __init__(self, x, y, width, height):
         super().__init__()
