@@ -1,42 +1,82 @@
 import pygame
 import sys
+import random
+import os
+from pygame.locals import *
+from camera import Camera
+from player import Player
+from enemy import Enemy
+from platform import Platform
 
-
-#Initialize Pygame
 pygame.init()
 
-#Get the screen size of the current display
-info = pygame.display.Info()
-screen_width = info.current_w
-screen_height = info.current_h
+FPS = 60
+FramePerSec = pygame.time.Clock()
 
-#Set up the display to adjust to screen size (resizable)
-screen = pygame.display.set_mode((screen_width, screen_height), pygame.RESIZABLE)
-pygame.display.set_caption("Resizable Window with White Background")
-
-#Define a white color
+# Predefined colors
 WHITE = (255, 255, 255)
 
-running = True
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        elif event.type == pygame.KEYDOWN:
-            # Check if the Escape key is pressed
-            if event.key == pygame.K_ESCAPE:
-                running = False
-        elif event.type == pygame.VIDEORESIZE:
-            # Adjust the screen size when the window is resized
-            screen_width, screen_height = event.w, event.h
-            screen = pygame.display.set_mode((screen_width, screen_height), pygame.RESIZABLE)
+# Screen information
+info = pygame.display.Info()
+SCREEN_WIDTH = info.current_w
+SCREEN_HEIGHT = info.current_h
 
-#Fill the screen with a white background
-    screen.fill(WHITE)
+DISPLAYSURF = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+DISPLAYSURF.fill(WHITE)
+pygame.display.set_caption("Game")
 
-    # Update the display
-    pygame.display.flip()
+base_path = os.path.dirname(__file__)  # Get the directory where the script is located
+bg_image_path = os.path.join(base_path, '..', 'Sprites', 'game_background.jpg')  # Construct the full path
 
-#Quit Pygame
-pygame.quit()
-sys.exit()
+bg_original = pygame.image.load(bg_image_path)
+bg = pygame.transform.scale(bg_original, (SCREEN_WIDTH, SCREEN_HEIGHT))
+
+# Platform generation
+def generate_platforms(platforms, camera):
+    last_platform = platforms[-1]
+    if last_platform.rect.right < SCREEN_WIDTH - camera.offset_x:
+        new_platform = Platform(last_platform.rect.right + random.randint(100, 300), random.randint(300, 700), 200, 20)
+        platforms.append(new_platform)
+
+def remove_offscreen_platforms(platforms, camera):
+    platforms[:] = [platform for platform in platforms if platform.rect.right > -camera.offset_x]
+
+def main():
+    P1 = Player(SCREEN_HEIGHT)
+    E1 = Enemy()
+    platforms = [
+        Platform(400, 700, 200, 20),
+        Platform(700, 600, 200, 20),
+        Platform(1000, 500, 200, 20),
+    ]
+    camera = Camera(P1, SCREEN_WIDTH)
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                return None
+            elif event.type == KEYDOWN:
+                if event.key == K_ESCAPE:
+                    pygame.QUIT()
+                    sys.exit()
+
+        P1.Update(platforms, E1, camera)
+        remove_offscreen_platforms(platforms, camera)
+        generate_platforms(platforms, camera)
+
+        # Background scrolling logic
+        DISPLAYSURF.blit(bg, (camera.offset_x % SCREEN_WIDTH, 0))
+        if camera.offset_x % SCREEN_WIDTH != 0:
+            DISPLAYSURF.blit(bg, (camera.offset_x % SCREEN_WIDTH - SCREEN_WIDTH, 0))
+
+        for platform in platforms:
+            platform.Draw(DISPLAYSURF, camera)
+
+        P1.Draw(DISPLAYSURF, camera)
+        E1.Draw(DISPLAYSURF, camera)
+
+        pygame.display.update()
+        FramePerSec.tick(FPS)
+
+if __name__ == '__main__':
+    main()
