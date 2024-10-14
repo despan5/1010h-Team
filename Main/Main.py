@@ -6,7 +6,7 @@ from pygame.locals import *
 from camera import Camera
 from player import Player
 from enemy import Enemy
-from platform import Platform
+from obstacles import Obstacles
 
 pygame.init()
 
@@ -35,7 +35,7 @@ bg = pygame.transform.scale(bg_original, (SCREEN_WIDTH, SCREEN_HEIGHT))
 def generate_platforms(platforms, camera):
     last_platform = platforms[-1]
     if last_platform.rect.right < SCREEN_WIDTH - camera.offset_x:
-        new_platform = Platform(last_platform.rect.right + random.randint(100, 300), random.randint(300, 700), 200, 20)
+        new_platform = Obstacles(last_platform.rect.right + random.randint(100, 300), random.randint(300, 700), 200, 20)
         platforms.append(new_platform)
 
 def remove_offscreen_platforms(platforms, camera):
@@ -45,9 +45,9 @@ def main():
     P1 = Player(SCREEN_HEIGHT)
     E1 = Enemy()
     platforms = [
-        Platform(400, 700, 200, 20),
-        Platform(700, 600, 200, 20),
-        Platform(1000, 500, 200, 20),
+        Obstacles(400, 700, 200, 20),
+        Obstacles(700, 600, 200, 20),
+        Obstacles(1000, 500, 200, 20),
     ]
     camera = Camera(P1, SCREEN_WIDTH)
 
@@ -60,7 +60,7 @@ def main():
                     pygame.QUIT()
                     sys.exit()
 
-        P1.Update(platforms, E1, camera)
+        P1.Update(platforms, E1, camera, SCREEN_HEIGHT)
         remove_offscreen_platforms(platforms, camera)
         generate_platforms(platforms, camera)
 

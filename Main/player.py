@@ -33,7 +33,7 @@ class Player(pygame.sprite.Sprite):
         self.animation_delay = 5
         self.animation_counter = 0
 
-    def Update(self, platforms, enemy, camera,SCREEN_HEIGHT):
+    def Update(self, platforms, enemy, camera, SCREEN_HEIGHT):
         pressed_keys = pygame.key.get_pressed()
         self.is_moving = False
 
