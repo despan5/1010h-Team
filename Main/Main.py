@@ -60,7 +60,9 @@ def main():
                     pygame.QUIT()
                     sys.exit()
 
+        # Update player and camera
         P1.Update(platforms, E1, camera, SCREEN_HEIGHT)
+        camera.update()  # Now camera always follows the player
         remove_offscreen_platforms(platforms, camera)
         generate_platforms(platforms, camera)
 
@@ -69,12 +71,14 @@ def main():
         if camera.offset_x % SCREEN_WIDTH != 0:
             DISPLAYSURF.blit(bg, (camera.offset_x % SCREEN_WIDTH - SCREEN_WIDTH, 0))
 
+        # Draw platforms, player, and enemy with camera offset applied
         for platform in platforms:
             platform.Draw(DISPLAYSURF, camera)
 
         P1.Draw(DISPLAYSURF, camera)
         E1.Draw(DISPLAYSURF, camera)
 
+        # Update display
         pygame.display.update()
         FramePerSec.tick(FPS)
 
