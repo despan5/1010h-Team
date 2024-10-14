@@ -2,6 +2,7 @@ import pygame
 import sys
 import random
 from pygame.locals import *
+import os
 
 pygame.init()
 
@@ -20,13 +21,37 @@ DISPLAYSURF = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 DISPLAYSURF.fill(WHITE)
 pygame.display.set_caption("Game")
 
-bg_original = pygame.image.load('C:/Users/thoma/Documents/GitHub/1010h-Team/Sprites/game_background.jpg')
+base_path = os.path.dirname(__file__)  # Get the directory where the script is located
+bg_image_path = os.path.join(base_path, '..', 'Sprites', 'game_background.jpg')  # Construct the full path
+
+bg_original = pygame.image.load(bg_image_path)
 bg = pygame.transform.scale(bg_original, (SCREEN_WIDTH, SCREEN_HEIGHT))
+
+# Camera class to handle scrolling
+class Camera:
+    def __init__(self, player, screen_width):
+        self.player = player
+        self.offset_x = 0
+        self.screen_width = screen_width
+        self.scroll_speed = 6
+
+    def update(self):
+        # Only scroll if the player is moving and passes the center of the screen
+        if self.player.is_moving:
+            if self.player.rect.centerx > self.screen_width // 2 and self.player.is_facing_right:
+                self.offset_x -= self.scroll_speed
+            elif self.player.rect.centerx < self.screen_width // 2 and not self.player.is_facing_right:
+                self.offset_x += self.scroll_speed
+
+    def apply(self, obj_rect):
+        return obj_rect.move(self.offset_x, 0)
 
 class Enemy(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        sprite_sheet = pygame.image.load('C:/Users/thoma/Documents/GitHub/1010h-Team/Sprites/male/cole/base/move.png').convert_alpha()
+        sprite_sheet_path = os.path.join(base_path, '..', 'Sprites', 'male', 'cole', 'base', 'move.png')
+
+        sprite_sheet = pygame.image.load(sprite_sheet_path).convert_alpha()
         
         frame_width = 24
         frame_height = 24
@@ -39,33 +64,20 @@ class Enemy(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = (1150, 465)
 
-
-
-
-    def Move(self):
-        self.rect.move_ip(0, 5)
-        if self.rect.bottom > SCREEN_HEIGHT:
-            self.rect.top = 0
-            self.rect.center = (random.randint(30, 370), 0)
-
-    def Draw(self, surface):
-        surface.blit(self.image, self.rect)
+    def Draw(self, surface, camera):
+        surface.blit(self.image, camera.apply(self.rect))
 
     def Check_Collision(self, player):
-            if self.rect.colliderect(player.rect):
-                player.rect.center = (160, SCREEN_HEIGHT - 300)
-            else:
-                pass
-                
-
-
+        if self.rect.colliderect(player.rect):
+            player.rect.center = (160, SCREEN_HEIGHT - 300)
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         
-        sprite_sheet = pygame.image.load('C:/Users/thoma/Documents/GitHub/1010h-Team/Sprites/female/doux/base/move.png')
+        sprite_sheet_path = os.path.join(base_path, '..', 'Sprites', 'female', 'doux', 'base', 'move.png')
 
+        sprite_sheet = pygame.image.load(sprite_sheet_path)
         frame_width = 24
         frame_height = 24
         num_frames = 5
@@ -75,7 +87,7 @@ class Player(pygame.sprite.Sprite):
             frame = sprite_sheet.subsurface(pygame.Rect(i * frame_width, 0, frame_width, frame_height))
             frame = pygame.transform.scale(frame, (100, 100))
             self.frames.append(frame)
-        #initialization of all the elements needed to function as a playable character
+
         self.current_frame= 0
         self.image = self.frames[self.current_frame]
         self.rect = self.image.get_rect()
@@ -91,21 +103,19 @@ class Player(pygame.sprite.Sprite):
         self.animation_delay = 5
         self.animation_counter = 0
 
-    #Checks for updates in the players inputs/movements
-    def Update(self, platforms, enemy):
+    def Update(self, platforms, enemy, camera):
         pressed_keys = pygame.key.get_pressed()
         self.is_moving = False
 
-        if self.rect.left > 0:
-            if pressed_keys[pygame.K_LEFT]:
-                self.rect.move_ip(-7, 0)
-                self.is_moving = True
-                if self.is_facing_right:
-                    self.Flip_Sprites()
-                self.is_facing_right = False
+        if pressed_keys[pygame.K_LEFT]:
+            self.rect.move_ip(-self.movement_speed, 0)
+            self.is_moving = True
+            if self.is_facing_right:
+                self.Flip_Sprites()
+            self.is_facing_right = False
 
         if pressed_keys[pygame.K_RIGHT]:
-            self.rect.move_ip(7, 0)
+            self.rect.move_ip(self.movement_speed, 0)
             self.is_moving = True
             if not self.is_facing_right:
                 self.Flip_Sprites()
@@ -115,7 +125,7 @@ class Player(pygame.sprite.Sprite):
         self.Apply_Gravity()
 
         if self.is_moving:
-            self.animation_counter+= 1
+            self.animation_counter += 1
             if self.animation_counter >= self.animation_delay:
                 self.current_frame = (self.current_frame + 1) % len(self.frames)
                 self.image = self.frames[self.current_frame]
@@ -125,14 +135,16 @@ class Player(pygame.sprite.Sprite):
             platform.Check_Collision(self)
 
         enemy.Check_Collision(self)
+        camera.update()  # Update camera position based on movement
 
     def Flip_Sprites(self):
         for i in range(len(self.frames)):
             self.frames[i] = pygame.transform.flip(self.frames[i], True, False)
+
     def Jump(self):
         pressed_keys = pygame.key.get_pressed()
         if pressed_keys[pygame.K_SPACE] and not self.is_jumping:
-            self.velocity_y = self.jump_strength #gravity effect, increases velocity each time.
+            self.velocity_y = self.jump_strength
             self.is_jumping = True
 
     def Apply_Gravity(self):
@@ -140,35 +152,41 @@ class Player(pygame.sprite.Sprite):
             self.velocity_y += self.gravity
             self.rect.y += self.velocity_y
 
-
         if self.rect.y >= SCREEN_HEIGHT - 350:
             self.rect.y = SCREEN_HEIGHT - 350
             self.velocity_y = 0
             self.is_jumping = False
 
-    def Draw(self, surface):
-        surface.blit(self.image, self.rect)
+    def Draw(self, surface, camera):
+        surface.blit(self.image, camera.apply(self.rect))
 
 class Platform:
     def __init__(self, x, y, width, height):
-        super().__init__()
         self.rect = pygame.Rect(x, y, width, height)
-    
-    def Draw(self, surface):
-        pygame.draw.rect(surface, (0, 255, 0), self.rect)
-    
-    def Check_Collision(self, player): 
-        #If player is above and falling, then you check for collision
-        if player.velocity_y > 0 and player.rect.bottom <=self.rect.top and \
+
+    def Draw(self, surface, camera):
+        pygame.draw.rect(surface, (0, 255, 0), camera.apply(self.rect))
+
+    def Check_Collision(self, player):
+        if player.velocity_y > 0 and player.rect.bottom <= self.rect.top and \
             player.rect.bottom + player.velocity_y >= self.rect.top and \
             self.rect.left < player.rect.centerx < self.rect.right:
-            
             player.rect.bottom = self.rect.top
             player.velocity_y = 0
             player.is_jumping = False
         else:
             if not (self.rect.left < player.rect.centerx < self.rect.right) and player.rect.bottom == self.rect.top:
                 player.is_jumping = True
+
+# Platform generation
+def generate_platforms(platforms, camera):
+    last_platform = platforms[-1]
+    if last_platform.rect.right < SCREEN_WIDTH - camera.offset_x:
+        new_platform = Platform(last_platform.rect.right + random.randint(100, 300), random.randint(300, 700), 200, 20)
+        platforms.append(new_platform)
+
+def remove_offscreen_platforms(platforms, camera):
+    platforms[:] = [platform for platform in platforms if platform.rect.right > -camera.offset_x]
 
 def main():
     P1 = Player()
@@ -178,7 +196,8 @@ def main():
         Platform(700, 600, 200, 20),
         Platform(1000, 500, 200, 20),
     ]
-    #Game Loop
+    camera = Camera(P1, SCREEN_WIDTH)
+
     while True:
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -187,17 +206,21 @@ def main():
                 if event.key == K_ESCAPE:
                     pygame.quit()
                     sys.exit()
-        #checks for updates using update function
-        P1.Update(platforms, E1)
-        #E1.Move()
 
-        DISPLAYSURF.blit(bg, (0, 0))
+        P1.Update(platforms, E1, camera)
+        remove_offscreen_platforms(platforms, camera)
+        generate_platforms(platforms, camera)
+
+        # **Fix background scrolling logic**
+        DISPLAYSURF.blit(bg, (camera.offset_x % SCREEN_WIDTH, 0))
+        if camera.offset_x % SCREEN_WIDTH != 0:
+            DISPLAYSURF.blit(bg, (camera.offset_x % SCREEN_WIDTH - SCREEN_WIDTH, 0))
 
         for platform in platforms:
-            platform.Draw(DISPLAYSURF)
+            platform.Draw(DISPLAYSURF, camera)
 
-        P1.Draw(DISPLAYSURF)
-        E1.Draw(DISPLAYSURF)
+        P1.Draw(DISPLAYSURF, camera)
+        E1.Draw(DISPLAYSURF, camera)
 
         pygame.display.update()
         FramePerSec.tick(FPS)
