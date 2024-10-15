@@ -7,7 +7,6 @@ from camera import Camera
 from player import Player
 from enemy import Enemy
 from obstacles import Obstacles
-from pterodactyl import PterodactylManager  # Import PterodactylManager
 
 pygame.init()
 
@@ -32,6 +31,7 @@ bg_image_path = os.path.join(base_path, '..', 'Sprites', 'game_background.jpg') 
 bg_original = pygame.image.load(bg_image_path)
 bg = pygame.transform.scale(bg_original, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
+# Platform generation
 def generate_platforms(platforms, camera):
     last_platform = platforms[-1]
     if last_platform.rect.right < SCREEN_WIDTH - camera.offset_x:
@@ -51,37 +51,20 @@ def main():
     ]
     camera = Camera(P1, SCREEN_WIDTH)
 
-    # Initialize Pterodactyl Manager
-    pterodactyl_manager = PterodactylManager(SCREEN_WIDTH, SCREEN_HEIGHT)
-
-    # Optionally, you can access the speed or size for display purposes
-    current_speed = pterodactyl_manager.get_speed()
-    current_size = pterodactyl_manager.get_size()
-    
     while True:
         for event in pygame.event.get():
             if event.type == QUIT:
                 return None
             elif event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
-                    pygame.quit()
+                    pygame.QUIT()
                     sys.exit()
 
         # Update player and camera
         P1.Update(platforms, E1, camera, SCREEN_HEIGHT)
-        camera.update()  # Camera follows the player
+        camera.update()  # Now camera always follows the player
         remove_offscreen_platforms(platforms, camera)
         generate_platforms(platforms, camera)
-
-        # Get the player's position
-        player_x, player_y = P1.rect.centerx, P1.rect.centery
-
-        # Random chance to generate a pterodactyl
-        if random.randint(0, 100) < 1:
-            pterodactyl_manager.generate_pterodactyl()
-
-        # Update pterodactyls
-        pterodactyl_manager.update_pterodactyls()
 
         # Background scrolling logic
         DISPLAYSURF.blit(bg, (camera.offset_x % SCREEN_WIDTH, 0))
@@ -94,10 +77,6 @@ def main():
 
         P1.Draw(DISPLAYSURF, camera)
         E1.Draw(DISPLAYSURF, camera)
-
-        # Update and draw pterodactyls
-        pterodactyl_manager.update_pterodactyls()
-        pterodactyl_manager.draw(DISPLAYSURF)
 
         # Update display
         pygame.display.update()
