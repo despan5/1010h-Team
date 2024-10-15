@@ -15,7 +15,7 @@ class PterodactylManager:
 
         # Load pterodactyl image
         base_path = os.path.dirname(__file__)
-        image_path = os.path.join(base_path, '..', 'Sprites', 'assets', 'pterodactyl', 'Pterodactyl_up_left.png')
+        image_path = os.path.join(base_path, '..', 'Sprites', 'assets', 'pterodactyl', 'pterodactyl.png')
         self.pterodactyl_image = pygame.image.load(image_path).convert_alpha()
 
         # Resize the image based on the initial size
