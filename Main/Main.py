@@ -6,15 +6,14 @@ from pygame.locals import *
 from camera import Camera
 from player import Player
 from enemy import Enemy
+<<<<<<< HEAD
 from obstacles import Obstacles, Door
+=======
+from obstacles import Obstacles
+from constants import TPS, MAIN_CLOCK, WHITE
+>>>>>>> ae71b9a (PYGM-19: Add preliminary setup for global constants (#7))
 
 pygame.init()
-
-FPS = 60
-FramePerSec = pygame.time.Clock()
-
-# Predefined colors
-WHITE = (255, 255, 255)
 
 # Screen information
 info = pygame.display.Info()
@@ -86,11 +85,12 @@ def main():
 
         P1.Draw(DISPLAYSURF, camera)
         E1.Draw(DISPLAYSURF, camera)
+        
         door.Draw(DISPLAYSURF, camera)
 
         # Update display
         pygame.display.update()
-        FramePerSec.tick(FPS)
+        MAIN_CLOCK.tick(TPS)
 
 if __name__ == '__main__':
     main()
