@@ -5,13 +5,8 @@ import os
 from pygame.locals import *
 from camera import Camera
 from player import Player
-from enemy import Enemy
-<<<<<<< HEAD
-from obstacles import Obstacles, Door
-=======
 from obstacles import Obstacles
 from constants import TPS, MAIN_CLOCK, WHITE
->>>>>>> ae71b9a (PYGM-19: Add preliminary setup for global constants (#7))
 
 pygame.init()
 
@@ -29,6 +24,8 @@ bg_image_path = os.path.join(base_path, '..', 'Sprites', 'game_background.jpg') 
 
 bg_original = pygame.image.load(bg_image_path)
 bg = pygame.transform.scale(bg_original, (SCREEN_WIDTH, SCREEN_HEIGHT))
+
+LEVEL_LENGTH = 5000  # Set level length for each level
 
 LEVEL_LENGTH = 5000  # Set level length for each level
 
@@ -86,8 +83,6 @@ def main():
         P1.Draw(DISPLAYSURF, camera)
         E1.Draw(DISPLAYSURF, camera)
         P1.hp.Draw(DISPLAYSURF, SCREEN_HEIGHT, SCREEN_WIDTH)
-        
-        door.Draw(DISPLAYSURF, camera)
 
         # Update display
         pygame.display.update()
