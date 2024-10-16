@@ -7,14 +7,9 @@ from camera import Camera
 from player import Player
 from enemy import Enemy
 from obstacles import Obstacles
+from constants import TPS, MAIN_CLOCK, WHITE
 
 pygame.init()
-
-FPS = 60
-FramePerSec = pygame.time.Clock()
-
-# Predefined colors
-WHITE = (255, 255, 255)
 
 # Screen information
 info = pygame.display.Info()
@@ -80,7 +75,7 @@ def main():
 
         # Update display
         pygame.display.update()
-        FramePerSec.tick(FPS)
+        MAIN_CLOCK.tick(TPS)
 
 if __name__ == '__main__':
     main()
