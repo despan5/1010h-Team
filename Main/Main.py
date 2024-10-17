@@ -85,6 +85,7 @@ def main():
 
         P1.Draw(DISPLAYSURF, camera)
         E1.Draw(DISPLAYSURF, camera)
+        P1.hp.Draw(DISPLAYSURF, SCREEN_HEIGHT, SCREEN_WIDTH)
         
         door.Draw(DISPLAYSURF, camera)
 
