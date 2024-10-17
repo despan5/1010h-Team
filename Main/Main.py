@@ -5,7 +5,8 @@ import os
 from pygame.locals import *
 from camera import Camera
 from player import Player
-from obstacles import Obstacles
+from enemy import Enemy
+from obstacles import Obstacles, Door
 from constants import TPS, MAIN_CLOCK, WHITE
 
 pygame.init()
@@ -83,6 +84,8 @@ def main():
         P1.Draw(DISPLAYSURF, camera)
         E1.Draw(DISPLAYSURF, camera)
         P1.hp.Draw(DISPLAYSURF, SCREEN_HEIGHT, SCREEN_WIDTH)
+
+        door.Draw(DISPLAYSURF, camera)
 
         # Update display
         pygame.display.update()
