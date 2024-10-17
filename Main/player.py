@@ -1,5 +1,6 @@
 import pygame
 import os
+from health import Health
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, SCREEN_HEIGHT):
@@ -32,6 +33,7 @@ class Player(pygame.sprite.Sprite):
 
         self.animation_delay = 5
         self.animation_counter = 0
+        self.hp = Health()
 
     def Update(self, platforms, enemy, camera, SCREEN_HEIGHT, consumable):
         pressed_keys = pygame.key.get_pressed()
@@ -73,10 +75,13 @@ class Player(pygame.sprite.Sprite):
             self.frames[i] = pygame.transform.flip(self.frames[i], True, False)
 
     def Jump(self):
-        pressed_keys = pygame.key.get_pressed()
+        pressed_keys = pygame.key.get_pressed() 
         if pressed_keys[pygame.K_SPACE] and not self.is_jumping:
             self.velocity_y = self.jump_strength
             self.is_jumping = True
+
+    def Take_Damage(self):
+        self.hp.Take_Damage()
 
     def Apply_Gravity(self, SCREEN_HEIGHT):
         if self.is_jumping:

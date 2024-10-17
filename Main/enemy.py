@@ -26,3 +26,5 @@ class Enemy(pygame.sprite.Sprite):
     def Check_Collision(self, player, SCREEN_HEIGHT):
         if self.rect.colliderect(player.rect):
             player.rect.center = (160, SCREEN_HEIGHT - 300)
+
+            player.hp.Take_Damage()

@@ -78,9 +78,10 @@ def main():
 
         P1.Draw(DISPLAYSURF, camera)
         E1.Draw(DISPLAYSURF, camera)
-        cherry.draw(DISPLAYSURF, camera)
 
-    
+        cherry.draw(DISPLAYSURF, camera)
+        P1.hp.Draw(DISPLAYSURF, SCREEN_HEIGHT, SCREEN_WIDTH)
+
 
         # Update display
         pygame.display.update()
