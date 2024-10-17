@@ -8,7 +8,10 @@ from player import Player
 from enemy import Enemy
 from obstacles import Obstacles
 from constants import TPS, MAIN_CLOCK, WHITE
+<<<<<<< HEAD
 from pterodactyl import PterodactylManager  # Import PterodactylManager
+=======
+>>>>>>> origin/main
 
 pygame.init()
 
