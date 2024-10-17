@@ -17,3 +17,13 @@ class Obstacles:
         else:
             if not (self.rect.left < player.rect.centerx < self.rect.right) and player.rect.bottom == self.rect.top:
                 player.is_jumping = True
+
+class Door:
+    def __init__(self, x, y):
+        self.rect = pygame.Rect(x, y, 50, 100)
+
+    def Draw(self, surface, camera):
+        pygame.draw.rect(surface, (255, 0, 0), camera.apply(self.rect))
+
+    def Check_Collision(self, player):
+        return self.rect.colliderect(player.rect)

@@ -6,7 +6,7 @@ from pygame.locals import *
 from camera import Camera
 from player import Player
 from enemy import Enemy
-from obstacles import Obstacles
+from obstacles import Obstacles, Door
 from constants import TPS, MAIN_CLOCK, WHITE
 
 pygame.init()
@@ -26,25 +26,30 @@ bg_image_path = os.path.join(base_path, '..', 'Sprites', 'game_background.jpg') 
 bg_original = pygame.image.load(bg_image_path)
 bg = pygame.transform.scale(bg_original, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
-# Platform generation
-def generate_platforms(platforms, camera):
-    last_platform = platforms[-1]
-    if last_platform.rect.right < SCREEN_WIDTH - camera.offset_x:
-        new_platform = Obstacles(last_platform.rect.right + random.randint(100, 300), random.randint(300, 700), 200, 20)
-        platforms.append(new_platform)
+LEVEL_LENGTH = 5000  # Set level length for each level
 
-def remove_offscreen_platforms(platforms, camera):
-    platforms[:] = [platform for platform in platforms if platform.rect.right > -camera.offset_x]
+LEVEL_LENGTH = 5000  # Set level length for each level
+
+# Platform generation
+def generate_platforms(platforms, level_length):
+    x = 400
+    while x < level_length:
+        y = random.randint(400, 700)
+        width = random.randint(100, 300)
+        height = 20
+        platform = Obstacles(x, y, width, height)
+        platforms.append(platform)
+        x += random.randint(300, 600)
 
 def main():
+    current_level = 1
     P1 = Player(SCREEN_HEIGHT)
     E1 = Enemy()
-    platforms = [
-        Obstacles(400, 700, 200, 20),
-        Obstacles(700, 600, 200, 20),
-        Obstacles(1000, 500, 200, 20),
-    ]
     camera = Camera(P1, SCREEN_WIDTH)
+
+    platforms = []
+    generate_platforms(platforms, LEVEL_LENGTH)
+    door = Door(LEVEL_LENGTH - 200, SCREEN_HEIGHT - 450)  # Place door near the end of the level
 
     while True:
         for event in pygame.event.get():
@@ -57,22 +62,30 @@ def main():
 
         # Update player and camera
         P1.Update(platforms, E1, camera, SCREEN_HEIGHT)
-        camera.update()  # Now camera always follows the player
-        remove_offscreen_platforms(platforms, camera)
-        generate_platforms(platforms, camera)
+        camera.update()
+
+        # Check if player reaches the door to go to the next level
+        if door.Check_Collision(P1):
+            current_level += 1
+            P1.rect.center = (160, SCREEN_HEIGHT - 300)  # Reset player position
+            platforms = []
+            generate_platforms(platforms, LEVEL_LENGTH)  # Generate new random platforms
+            door = Door(LEVEL_LENGTH - 200, SCREEN_HEIGHT - 450)  # Place door at the end of the new level
 
         # Background scrolling logic
         DISPLAYSURF.blit(bg, (camera.offset_x % SCREEN_WIDTH, 0))
         if camera.offset_x % SCREEN_WIDTH != 0:
             DISPLAYSURF.blit(bg, (camera.offset_x % SCREEN_WIDTH - SCREEN_WIDTH, 0))
 
-        # Draw platforms, player, and enemy with camera offset applied
+        # Draw platforms, player, enemy, and door with camera offset applied
         for platform in platforms:
             platform.Draw(DISPLAYSURF, camera)
 
         P1.Draw(DISPLAYSURF, camera)
         E1.Draw(DISPLAYSURF, camera)
         P1.hp.Draw(DISPLAYSURF, SCREEN_HEIGHT, SCREEN_WIDTH)
+
+        door.Draw(DISPLAYSURF, camera)
 
         # Update display
         pygame.display.update()
