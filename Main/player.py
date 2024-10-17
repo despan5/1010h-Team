@@ -33,7 +33,7 @@ class Player(pygame.sprite.Sprite):
         self.animation_delay = 5
         self.animation_counter = 0
 
-    def Update(self, platforms, enemy, camera, SCREEN_HEIGHT):
+    def Update(self, platforms, enemy, camera, SCREEN_HEIGHT, consumable):
         pressed_keys = pygame.key.get_pressed()
         self.is_moving = False
 
@@ -65,6 +65,7 @@ class Player(pygame.sprite.Sprite):
             platform.Check_Collision(self)
 
         enemy.Check_Collision(self, SCREEN_HEIGHT)
+        consumable.update(self)
         camera.update()
 
     def Flip_Sprites(self):

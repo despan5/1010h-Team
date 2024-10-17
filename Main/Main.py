@@ -8,6 +8,7 @@ from player import Player
 from enemy import Enemy
 from obstacles import Obstacles
 from constants import TPS, MAIN_CLOCK, WHITE
+from consumable import Consumable
 
 pygame.init()
 
@@ -33,12 +34,17 @@ def generate_platforms(platforms, camera):
         new_platform = Obstacles(last_platform.rect.right + random.randint(100, 300), random.randint(300, 700), 200, 20)
         platforms.append(new_platform)
 
+# Consumable Test
+cherry_image = pygame.image.load('Sprites/FruitsAsset/03.png').convert_alpha()
+
+
 def remove_offscreen_platforms(platforms, camera):
     platforms[:] = [platform for platform in platforms if platform.rect.right > -camera.offset_x]
 
 def main():
     P1 = Player(SCREEN_HEIGHT)
     E1 = Enemy()
+    cherry = Consumable(400, 650, cherry_image)
     platforms = [
         Obstacles(400, 700, 200, 20),
         Obstacles(700, 600, 200, 20),
@@ -56,7 +62,7 @@ def main():
                     sys.exit()
 
         # Update player and camera
-        P1.Update(platforms, E1, camera, SCREEN_HEIGHT)
+        P1.Update(platforms, E1, camera, SCREEN_HEIGHT, cherry)
         camera.update()  # Now camera always follows the player
         remove_offscreen_platforms(platforms, camera)
         generate_platforms(platforms, camera)
@@ -72,6 +78,9 @@ def main():
 
         P1.Draw(DISPLAYSURF, camera)
         E1.Draw(DISPLAYSURF, camera)
+        cherry.draw(DISPLAYSURF, camera)
+
+    
 
         # Update display
         pygame.display.update()
