@@ -15,7 +15,7 @@ class PterodactylManager:
 
         # Load pterodactyl image
         base_path = os.path.dirname(__file__)
-        image_path = os.path.join(base_path, '..', 'Sprites', 'assets', 'pterodactyl', 'pterodactyl.png')
+        image_path = os.path.join(base_path, '..', 'Sprites', 'assets', 'Pterodactyl.png')
         self.pterodactyl_image = pygame.image.load(image_path).convert_alpha()
 
         # Resize the image based on the initial size
@@ -64,7 +64,7 @@ class PterodactylManager:
             pterodactyl['y'] += pterodactyl['velocity_y']
 
         # Remove pterodactyls that are off-screen (below the screen)
-        self.pterodactyls[:] = [p for p in self.pterodactyls if p['y'] < self.screen_height]
+        self.pterodactyls[:] = [p for p in self.pterodactyls if p['y'] < self.SCREEN_HEIGHT]
 
     def draw(self, surface):
         """Draw the pterodactyls on the surface."""
