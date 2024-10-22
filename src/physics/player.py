@@ -4,6 +4,7 @@ from control.health import Health
 from constants import PROJECT_ROOT
 
 
+
 class Player(pygame.sprite.Sprite):
     def __init__(self, SCREEN_HEIGHT):
         super().__init__()
