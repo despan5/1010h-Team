@@ -8,6 +8,7 @@ from physics.player import Player
 from physics.enemy import Enemy
 from physics.obstacles import Obstacles, Door
 from constants import TPS, MAIN_CLOCK, WHITE, PROJECT_ROOT
+from physics.consumable import Consumable
 
 
 class Engine:
@@ -51,6 +52,7 @@ class Engine:
         P1 = Player(self.SCREEN_HEIGHT)
         E1 = Enemy()
         camera = Camera(P1, self.SCREEN_WIDTH)
+        cherry = Consumable(400, 650)
 
         platforms = []
         Engine.generate_platforms(platforms, self.LEVEL_LENGTH)
@@ -68,6 +70,7 @@ class Engine:
             # Update player and camera
             P1.Update(platforms, E1, camera, self.SCREEN_HEIGHT)
             camera.update()
+            cherry.update(P1)
 
             # Check if player reaches the door to go to the next level
             if door.Check_Collision(P1):
@@ -88,8 +91,9 @@ class Engine:
 
             P1.Draw(self.DISPLAYSURF, camera)
             E1.Draw(self.DISPLAYSURF, camera)
+            cherry.draw(self.DISPLAYSURF, camera)
             P1.hp.Draw(self.DISPLAYSURF, self.SCREEN_HEIGHT, self.SCREEN_WIDTH)
-
+            
             door.Draw(self.DISPLAYSURF, camera)
 
             # Update display
