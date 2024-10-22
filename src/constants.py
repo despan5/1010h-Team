@@ -11,6 +11,13 @@ Things that you SHOULD include in this file are:
 """
 
 import pygame
+import os
+
+PROJECT_ROOT: str = os.path.abspath(
+    os.path.join(
+        os.path.dirname(__file__), '..'
+    )
+)
 
 TPS: int = 60
 MAIN_CLOCK: pygame.time.Clock = pygame.time.Clock()
