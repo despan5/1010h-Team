@@ -1,6 +1,7 @@
 import os
 import pygame
 import time
+from src.constants import PROJECT_ROOT
 
 class Health:
     def __init__(self):
@@ -9,7 +10,7 @@ class Health:
         self.health_count = 4
 
         base_path = os.path.dirname(__file__)
-        health_bar_path = os.path.join(base_path, '..', 'Sprites', 'Health', 'health_bars', 'health_bar.png')
+        health_bar_path = os.path.join(PROJECT_ROOT, 'assets', 'sprites', 'Health', 'health_bars', 'health_bar.png')
         health_bar_sheet = pygame.image.load(health_bar_path).convert_alpha()
 
         health_bar_image_width = 48

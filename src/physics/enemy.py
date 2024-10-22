@@ -1,11 +1,13 @@
 import pygame
 import os
+from src.constants import PROJECT_ROOT
+
 
 class Enemy(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         base_path = os.path.dirname(__file__)  # Get the directory where the script is located
-        sprite_sheet_path = os.path.join(base_path, '..', 'Sprites', 'male', 'cole', 'base', 'move.png')
+        sprite_sheet_path = os.path.join(PROJECT_ROOT, 'assets', 'sprites', 'male', 'cole', 'base', 'move.png')
 
         sprite_sheet = pygame.image.load(sprite_sheet_path).convert_alpha()
         

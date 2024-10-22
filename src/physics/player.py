@@ -1,6 +1,8 @@
 import pygame
 import os
-from health import Health
+from src.control.health import Health
+from src.constants import PROJECT_ROOT
+
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, SCREEN_HEIGHT):
@@ -8,10 +10,10 @@ class Player(pygame.sprite.Sprite):
         base_path = os.path.dirname(__file__) # get the directory where the script is located
 
         # load sprite sheets for different animations
-        self.idle_sprites = self.load_sprites(os.path.join(base_path, '..', 'Sprites', 'female', 'doux', 'base', 'idle.png'), 24, 24)
-        self.move_sprites = self.load_sprites(os.path.join(base_path, '..', 'Sprites', 'female', 'doux', 'base', 'move.png'), 24, 24)
-        self.jump_sprites = self.load_sprites(os.path.join(base_path, '..', 'Sprites', 'female', 'doux', 'base', 'jump.png'), 24, 24)
-        self.bite_sprites = self.load_sprites(os.path.join(base_path, '..', 'Sprites', 'female', 'doux', 'base', 'bite.png'), 24, 24)
+        self.idle_sprites = self.load_sprites(os.path.join(PROJECT_ROOT, 'assets', 'sprites', 'female', 'doux', 'base', 'idle.png'), 24, 24)
+        self.move_sprites = self.load_sprites(os.path.join(PROJECT_ROOT, 'assets', 'sprites', 'female', 'doux', 'base', 'move.png'), 24, 24)
+        self.jump_sprites = self.load_sprites(os.path.join(PROJECT_ROOT, 'assets', 'sprites', 'female', 'doux', 'base', 'jump.png'), 24, 24)
+        self.bite_sprites = self.load_sprites(os.path.join(PROJECT_ROOT, 'assets', 'sprites', 'female', 'doux', 'base', 'bite.png'), 24, 24)
 
         # set the initial states
         self.current_sprites = self.idle_sprites
