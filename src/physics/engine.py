@@ -3,11 +3,11 @@ import sys
 import random
 import os
 from pygame.locals import *
-from src.control.camera import Camera
-from src.physics.player import Player
-from src.physics.enemy import Enemy
-from src.physics.obstacles import Obstacles, Door
-from src.constants import TPS, MAIN_CLOCK, WHITE, PROJECT_ROOT
+from control.camera import Camera
+from physics.player import Player
+from physics.enemy import Enemy
+from physics.obstacles import Obstacles, Door
+from constants import TPS, MAIN_CLOCK, WHITE, PROJECT_ROOT
 
 
 class Engine:

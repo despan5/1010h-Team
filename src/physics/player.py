@@ -1,7 +1,7 @@
 import pygame
 import os
-from src.control.health import Health
-from src.constants import PROJECT_ROOT
+from control.health import Health
+from constants import PROJECT_ROOT
 
 
 class Player(pygame.sprite.Sprite):

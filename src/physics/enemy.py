@@ -1,6 +1,6 @@
 import pygame
 import os
-from src.constants import PROJECT_ROOT
+from constants import PROJECT_ROOT
 
 
 class Enemy(pygame.sprite.Sprite):

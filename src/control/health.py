@@ -1,7 +1,7 @@
 import os
 import pygame
 import time
-from src.constants import PROJECT_ROOT
+from constants import PROJECT_ROOT
 
 class Health:
     def __init__(self):
