@@ -1,14 +1,13 @@
 import pygame
 import os
 from control.health import Health
-from constants import PROJECT_ROOT
+from constants import PROJECT_ROOT, ONE_HALF, ONE_THIRD, TWO_THIRDS, FIVE_SIXTHS, THREE_FOURTHS, ONE_FOURTH
 
 
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, SCREEN_HEIGHT):
         super().__init__()
-        base_path = os.path.dirname(__file__) # get the directory where the script is located
 
         # load sprite sheets for different animations
         self.idle_sprites = self.load_sprites(os.path.join(PROJECT_ROOT, 'assets', 'sprites', 'female', 'doux', 'base', 'idle.png'), 24, 24)
@@ -21,7 +20,7 @@ class Player(pygame.sprite.Sprite):
         self.current_frame = 0
         self.image = self.current_sprites[self.current_frame]
         self.rect = self.image.get_rect()
-        self.rect.center = (160, SCREEN_HEIGHT - 300)
+        self.rect.midbottom = (160, SCREEN_HEIGHT * (THREE_FOURTHS))
 
         # variables for player movement and actions
         self.is_jumping = False
@@ -76,7 +75,7 @@ class Player(pygame.sprite.Sprite):
 
         # jumping logic -- space key (trigger jump only when on the ground)
         if pressed_keys[pygame.K_SPACE] and not self.is_jumping:
-            self.Jump(SCREEN_HEIGHT)
+            self.Jump()
 
         # Store the current sprite state for comparison later
         previous_sprites = self.current_sprites
@@ -122,7 +121,7 @@ class Player(pygame.sprite.Sprite):
         enemy.Check_Collision(self, SCREEN_HEIGHT)
         camera.update()
 
-    def Jump(self, SCREEN_HEIGHT):
+    def Jump(self):
         self.is_jumping = True
         self.velocity_y = self.jump_strength
 
@@ -131,8 +130,8 @@ class Player(pygame.sprite.Sprite):
             self.velocity_y += self.gravity
             self.rect.y += self.velocity_y
 
-        if self.rect.y >= SCREEN_HEIGHT - 350:  # stop applying gravity when player reaches the ground
-            self.rect.y = SCREEN_HEIGHT - 350
+        if self.rect.bottom >= SCREEN_HEIGHT * (THREE_FOURTHS):  # stop applying gravity when player reaches the ground
+            self.rect.bottom = SCREEN_HEIGHT * (THREE_FOURTHS)
             self.velocity_y = 0
             self.is_jumping = False
 
@@ -140,4 +139,5 @@ class Player(pygame.sprite.Sprite):
         self.hp.Take_Damage()
 
     def Draw(self, surface, camera):
+
         surface.blit(self.image, camera.apply(self.rect))

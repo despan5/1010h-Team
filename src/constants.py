@@ -25,3 +25,11 @@ MAIN_CLOCK: pygame.time.Clock = pygame.time.Clock()
 
 # Predefined colors (we might want to add a dedicated file for this later!)
 WHITE: tuple[int, int, int] = (255, 255, 255)
+
+# Predefined fractions for making things dynamic with different screen sizes!
+ONE_THIRD = 1/3
+TWO_THIRDS = 2/3
+ONE_HALF = 1/2
+FIVE_SIXTHS = 5/6
+THREE_FOURTHS = 3/4
+ONE_FOURTH = 1/4

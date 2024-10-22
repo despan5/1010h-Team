@@ -7,7 +7,7 @@ from control.camera import Camera
 from physics.player import Player
 from physics.enemy import Enemy
 from physics.obstacles import Obstacles, Door
-from constants import TPS, MAIN_CLOCK, WHITE, PROJECT_ROOT
+from constants import TPS, MAIN_CLOCK, WHITE, PROJECT_ROOT, ONE_THIRD, ONE_HALF, TWO_THIRDS, FIVE_SIXTHS, ONE_FOURTH
 from physics.consumable import Consumable
 
 
@@ -36,11 +36,13 @@ class Engine:
         self.LEVEL_LENGTH = 5000  # Set level length for each level
 
     # Platform generation
-    @staticmethod
-    def generate_platforms(platforms, level_length):
-        x = 400
+    #@staticmethod
+    def generate_platforms(self, platforms, level_length):
+        x = self.SCREEN_WIDTH * (ONE_THIRD)
+        half_screeny = self.SCREEN_HEIGHT * (TWO_THIRDS)
+        third_screeny = self.SCREEN_HEIGHT * (ONE_FOURTH)
         while x < level_length:
-            y = random.randint(400, 700)
+            y = random.randint(third_screeny, half_screeny)
             width = random.randint(100, 300)
             height = 20
             platform = Obstacles(x, y, width, height)
@@ -55,8 +57,8 @@ class Engine:
         cherry = Consumable(400, 650)
 
         platforms = []
-        Engine.generate_platforms(platforms, self.LEVEL_LENGTH)
-        door = Door(self.LEVEL_LENGTH - 200, self.SCREEN_HEIGHT - 450)  # Place door near the end of the level
+        Engine.generate_platforms(self, platforms, self.LEVEL_LENGTH)
+        door = Door(self.LEVEL_LENGTH - 200, self.SCREEN_HEIGHT * (TWO_THIRDS))  # Place door near the end of the level
 
         while True:
             for event in pygame.event.get():
@@ -77,7 +79,7 @@ class Engine:
                 current_level += 1
                 P1.rect.center = (160, self.SCREEN_HEIGHT - 300)  # Reset player position
                 platforms = []
-                Engine.generate_platforms(platforms, self.LEVEL_LENGTH)  # Generate new random platforms
+                Engine.generate_platforms(self, platforms, self.LEVEL_LENGTH)  # Generate new random platforms
                 door = Door(self.LEVEL_LENGTH - 200, self.SCREEN_HEIGHT - 450)  # Place door at the end of the new level
 
             # Background scrolling logic
