@@ -7,7 +7,7 @@ from control.camera import Camera
 from physics.player import Player
 from physics.enemy import Enemy
 from physics.obstacles import Obstacles, Door
-from constants import TPS, MAIN_CLOCK, WHITE, PROJECT_ROOT, ONE_THIRD, ONE_HALF, TWO_THIRDS, FIVE_SIXTHS, ONE_FOURTH
+from constants import TPS, MAIN_CLOCK, WHITE, PROJECT_ROOT, ONE_THIRD, ONE_HALF, TWO_THIRDS, FIVE_SIXTHS, ONE_FOURTH, THREE_FOURTHS
 from physics.consumable import Consumable
 
 
@@ -39,10 +39,10 @@ class Engine:
     #@staticmethod
     def generate_platforms(self, platforms, level_length):
         x = self.SCREEN_WIDTH * (ONE_THIRD)
-        half_screeny = self.SCREEN_HEIGHT * (TWO_THIRDS)
-        third_screeny = self.SCREEN_HEIGHT * (ONE_FOURTH)
+        twothirds_screeny = self.SCREEN_HEIGHT * (TWO_THIRDS)
+        onefourth_screeny = self.SCREEN_HEIGHT * (ONE_FOURTH)
         while x < level_length:
-            y = random.randint(third_screeny, half_screeny)
+            y = random.randint(onefourth_screeny, twothirds_screeny)
             width = random.randint(100, 300)
             height = 20
             platform = Obstacles(x, y, width, height)
@@ -54,7 +54,8 @@ class Engine:
         P1 = Player(self.SCREEN_HEIGHT)
         E1 = Enemy()
         camera = Camera(P1, self.SCREEN_WIDTH)
-        cherry = Consumable(400, 650)
+        fourthscreeny = self.SCREEN_HEIGHT * (THREE_FOURTHS)
+        cherry = Consumable(400, fourthscreeny)
 
         platforms = []
         Engine.generate_platforms(self, platforms, self.LEVEL_LENGTH)

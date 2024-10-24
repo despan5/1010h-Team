@@ -12,8 +12,7 @@ class Consumable(pygame.sprite.Sprite):
         self.cherry_image =  self.load_sprites(os.path.join(PROJECT_ROOT, 'assets', 'sprites', 'fruits', '03.png'), 16, 16)
         self.image = self.cherry_image[0]
         self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
+        self.rect.center(x, y)
         self.is_collected = False
 
     def update(self, player):
