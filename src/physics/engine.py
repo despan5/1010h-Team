@@ -16,6 +16,9 @@ class Engine:
     def __init__(self):
         pygame.init()
 
+        # Initialize Music
+        pygame.mixer.init()
+
         # Screen information
         self.info = pygame.display.Info()
         self.SCREEN_WIDTH = self.info.current_w
@@ -58,12 +61,19 @@ class Engine:
         Engine.generate_platforms(platforms, self.LEVEL_LENGTH)
         door = Door(self.LEVEL_LENGTH - 200, self.SCREEN_HEIGHT - 450)  # Place door near the end of the level
 
+        # Load Music
+        pygame.mixer.music.load('assets/sound/song1.mp3')
+
+        # Play the music (-1 means loop indefinitely)
+        pygame.mixer.music.play(-1)
+
         while True:
             for event in pygame.event.get():
                 if event.type == QUIT:
                     return None
                 elif event.type == KEYDOWN:
                     if event.key == K_ESCAPE:
+                        pygame.mixer.music.stop()
                         pygame.QUIT()
                         sys.exit()
 
