@@ -9,6 +9,7 @@ from physics.enemy import Enemy
 from physics.obstacles import Obstacles, Door
 from constants import TPS, MAIN_CLOCK, WHITE, PROJECT_ROOT
 from physics.consumable import Consumable
+from ui.start_screen import StartScreen
 
 
 class Engine:
@@ -28,7 +29,7 @@ class Engine:
         self.DISPLAYSURF.fill(WHITE)
         pygame.display.set_caption("Game")
 
-        bg_image_path = os.path.join(PROJECT_ROOT, 'assets', 'sprites', 'game_background.jpg')  # Construct the path
+        bg_image_path = os.path.join(PROJECT_ROOT, 'assets', 'sprites', 'background', 'background_01.png')  # Construct the path
         print(bg_image_path)
 
         bg_original = pygame.image.load(bg_image_path)
@@ -51,11 +52,25 @@ class Engine:
             x += random.randint(300, 600)
 
     def run_engine(self):
+
+        # Initialize and display the start screen
+        start_screen = StartScreen(self.DISPLAYSURF)
+        in_start_screen = True
+
+        while in_start_screen:
+            start_screen.draw()
+            for event in pygame.event.get():
+                if event.type == QUIT:
+                    return None
+                if start_screen.handle_event(event):
+                    in_start_screen = False  # Proceed to game when Enter is pressed
+
         current_level = 1
         P1 = Player(self.SCREEN_HEIGHT)
         E1 = Enemy()
         camera = Camera(P1, self.SCREEN_WIDTH)
         cherry = Consumable(400, 650)
+        
 
         platforms = []
         Engine.generate_platforms(platforms, self.LEVEL_LENGTH)

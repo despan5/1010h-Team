@@ -119,8 +119,10 @@ class Player(pygame.sprite.Sprite):
         for platform in platforms:
             platform.Check_Collision(self)
 
-        enemy.Check_Collision(self, SCREEN_HEIGHT)
-        camera.update()
+        if enemy:
+            enemy.Check_Collision(self, SCREEN_HEIGHT)
+        if camera:
+            camera.update()
 
     def Jump(self, SCREEN_HEIGHT):
         self.is_jumping = True
@@ -140,4 +142,9 @@ class Player(pygame.sprite.Sprite):
         self.hp.Take_Damage()
 
     def Draw(self, surface, camera):
-        surface.blit(self.image, camera.apply(self.rect))
+       # If camera is not passed, or it's a lambda function for cutscenes, skip the camera logic
+        if hasattr(camera, 'apply'):
+            surface.blit(self.image, camera.apply(self.rect))
+        else:
+            surface.blit(self.image, self.rect)  # Just blit normally if no camera is used
+
