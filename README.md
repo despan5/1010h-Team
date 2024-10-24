@@ -7,11 +7,16 @@
 - **Quality Assurance:** Michael Johnson
 - **Configuration Manager:** Matt Despain
 - **Document Manager:** Caitlyn Caldwell
-- **Freelancer:** Allyn Crane
 
 ## Project specifics:
 - **Technology:** Pygame, Firebase
 - **Project Type:** Sidescroller (similar to Mario)
+
+## Requirements:
+- Database
+- Has Features
+- Commented
+- Actually Cool
 
 ## Bi-weekly Schedule (Sprint Schedule)
 
@@ -50,6 +55,13 @@
 
 - **Friday:**
   - Stand-up meeting (on Discord)
+
+## Features:
+  - Start Game Menu/Screen + Database
+  - Designed Levels
+  - Power-ups (temporary buff)
+  - Permanent Character Upgrades
+  - Attack Mechanics
 
 ## Important Links:
 - [Jira Main Pipeline](https://byui-cse310.atlassian.net/jira/software/projects/PYGM/boards/1)
