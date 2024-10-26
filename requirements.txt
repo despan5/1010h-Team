@@ -1,0 +1,6 @@
+#this is here for the developers to know what packages are needed to run the project 
+#install these packages using pip install -r requirements.txt
+#feel free to add other libraries as well
+pymongo
+python-dotenv
+bcrypt
