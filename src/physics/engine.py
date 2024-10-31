@@ -77,7 +77,8 @@ class Engine:
         door = Door(self.LEVEL_LENGTH - 200, self.SCREEN_HEIGHT - 450)  # Place door near the end of the level
 
         # Load Music
-        pygame.mixer.music.load('assets/sound/song1.mp3')
+        music_path = os.path.join(PROJECT_ROOT, 'assets', 'sound', 'song1.mp3')
+        pygame.mixer.music.load(music_path)
 
         # Play the music (-1 means loop indefinitely)
         pygame.mixer.music.play(-1)
