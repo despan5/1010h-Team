@@ -10,6 +10,7 @@ from physics.obstacles import Obstacles, Door
 from constants import TPS, MAIN_CLOCK, WHITE, PROJECT_ROOT
 from physics.consumable import Consumable
 from ui.start_screen import StartScreen
+from control.level_generation import LevelGeneration
 
 
 class Engine:
@@ -31,6 +32,8 @@ class Engine:
 
         bg_image_path = os.path.join(PROJECT_ROOT, 'assets', 'sprites', 'background', 'background_01.png')  # Construct the path
         print(bg_image_path)
+
+        
 
         bg_original = pygame.image.load(bg_image_path)
         self.bg = pygame.transform.scale(bg_original, (self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
@@ -54,33 +57,34 @@ class Engine:
     def run_engine(self):
 
         # Initialize and display the start screen
-        start_screen = StartScreen(self.DISPLAYSURF)
-        in_start_screen = True
+        # start_screen = StartScreen(self.DISPLAYSURF)
+        # in_start_screen = True
 
-        while in_start_screen:
-            start_screen.draw()
-            for event in pygame.event.get():
-                if event.type == QUIT:
-                    return None
-                if start_screen.handle_event(event):
-                    in_start_screen = False  # Proceed to game when Enter is pressed
+        # while in_start_screen:
+        #     start_screen.draw()
+        #     for event in pygame.event.get():
+        #         if event.type == QUIT:
+        #             return None
+        #         if start_screen.handle_event(event):
+        #             in_start_screen = False  # Proceed to game when Enter is pressed
 
         current_level = 1
+
+        
         P1 = Player(self.SCREEN_HEIGHT)
         E1 = Enemy()
         camera = Camera(P1, self.SCREEN_WIDTH)
         cherry = Consumable(400, 650)
-        
-
+    
         platforms = []
         Engine.generate_platforms(platforms, self.LEVEL_LENGTH)
         door = Door(self.LEVEL_LENGTH - 200, self.SCREEN_HEIGHT - 450)  # Place door near the end of the level
 
         # Load Music
-        pygame.mixer.music.load('assets/sound/song1.mp3')
+        #pygame.mixer.music.load('assets/sound/song1.mp3')
 
         # Play the music (-1 means loop indefinitely)
-        pygame.mixer.music.play(-1)
+        #pygame.mixer.music.play(-1)
 
         while True:
             for event in pygame.event.get():
@@ -92,8 +96,30 @@ class Engine:
                         pygame.QUIT()
                         sys.exit()
 
+            lvl_sheet = os.path.join(PROJECT_ROOT, 'assets', 'sprites', 'Platforms', 'generic-grassdirt-tileset', 'lavatiles.png')
+
+            level_data = LevelGeneration(os.path.join(PROJECT_ROOT, 'assets', 'level_files', 'level1.csv'), 16, lvl_sheet)
+            level_data.load_level()
+
+            # Get rows and columns for the aspect ratio calculation
+            rows = len(level_data.level_data)
+            cols = len(level_data.level_data[0]) if rows > 0 else 0
+
+            # Calculate aspect ratio of the level
+            aspect_ratio = cols / rows if rows > 0 else 1
+            # print(aspect_ratio)
+
+            # Calculate tile size to make the level fill the screen vertically
+            scale_factor = self.SCREEN_HEIGHT / rows
+            self.tile_size = int(scale_factor)
+
+            # Re-adjust the width to match the height scaling, so the aspect ratio is preserved
+            self.level_width = int(self.tile_size * cols)
+            level_gen = LevelGeneration(os.path.join(PROJECT_ROOT, 'assets', 'level_files', 'level1.csv'), self.tile_size, lvl_sheet)
+            level_gen.load_level()
+
             # Update player and camera
-            P1.Update(platforms, E1, camera, self.SCREEN_HEIGHT)
+            P1.Update(level_data, E1, camera, self.SCREEN_HEIGHT)
             camera.update()
             cherry.update(P1)
 
@@ -110,16 +136,17 @@ class Engine:
             if camera.offset_x % self.SCREEN_WIDTH != 0:
                 self.DISPLAYSURF.blit(self.bg, (camera.offset_x % self.SCREEN_WIDTH - self.SCREEN_WIDTH, 0))
 
-            # Draw platforms, player, enemy, and door with camera offset applied
-            for platform in platforms:
-                platform.Draw(self.DISPLAYSURF, camera)
-
             P1.Draw(self.DISPLAYSURF, camera)
             E1.Draw(self.DISPLAYSURF, camera)
             cherry.draw(self.DISPLAYSURF, camera)
+
+            level_gen.generate_level(self.DISPLAYSURF, camera, P1)
+
             P1.hp.Draw(self.DISPLAYSURF, self.SCREEN_HEIGHT, self.SCREEN_WIDTH)
             
             door.Draw(self.DISPLAYSURF, camera)
+            
+            
 
             # Update display
             pygame.display.update()

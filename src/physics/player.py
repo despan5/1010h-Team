@@ -8,8 +8,7 @@ from constants import PROJECT_ROOT
 class Player(pygame.sprite.Sprite):
     def __init__(self, SCREEN_HEIGHT):
         super().__init__()
-        base_path = os.path.dirname(__file__) # get the directory where the script is located
-
+        
         # load sprite sheets for different animations
         self.idle_sprites = self.load_sprites(os.path.join(PROJECT_ROOT, 'assets', 'sprites', 'female', 'doux', 'base', 'idle.png'), 24, 24)
         self.move_sprites = self.load_sprites(os.path.join(PROJECT_ROOT, 'assets', 'sprites', 'female', 'doux', 'base', 'move.png'), 24, 24)
@@ -21,16 +20,17 @@ class Player(pygame.sprite.Sprite):
         self.current_frame = 0
         self.image = self.current_sprites[self.current_frame]
         self.rect = self.image.get_rect()
-        self.rect.center = (160, SCREEN_HEIGHT - 300)
+        self.rect.center = (400, SCREEN_HEIGHT - 500)
 
         # variables for player movement and actions
         self.is_jumping = False
+        self.is_on_platform = False
         self.velocity_y = 0
         self.gravity = 1.5
         self.jump_strength = -35.5
         self.is_moving = False
         self.is_facing_right = True
-        self.movement_speed = 6
+        self.movement_speed = 12
 
         # animation timing
         self.animation_delay = 10
@@ -53,7 +53,7 @@ class Player(pygame.sprite.Sprite):
             frames.append(frame)
         return frames
 
-    def Update(self, platforms, enemy, camera, SCREEN_HEIGHT):
+    def Update(self, lvlgen, enemy, camera, SCREEN_HEIGHT):
         pressed_keys = pygame.key.get_pressed()
 
         # reset movement and bite status at the start of update
@@ -101,6 +101,8 @@ class Player(pygame.sprite.Sprite):
         if previous_sprites != self.current_sprites:
             self.current_frame = 0
 
+        #print(f"Before Collision Check - Velocity Y: {self.velocity_y}, Is Jumping: {self.is_jumping}, Is On Platform: {self.is_on_platform}")
+
         # apply gravity and handle the jumping mechanism
         self.Apply_Gravity(SCREEN_HEIGHT)
 
@@ -116,8 +118,10 @@ class Player(pygame.sprite.Sprite):
             self.animation_counter = 0
 
         # check collisions with platforms and enemies
-        for platform in platforms:
-            platform.Check_Collision(self)
+    
+        lvlgen.Check_Collision(self)
+
+        #print(f"After Collision Check - Velocity Y: {self.velocity_y}, Is Jumping: {self.is_jumping}, Is On Platform: {self.is_on_platform}")
 
         if enemy:
             enemy.Check_Collision(self, SCREEN_HEIGHT)
@@ -129,22 +133,27 @@ class Player(pygame.sprite.Sprite):
         self.velocity_y = self.jump_strength
 
     def Apply_Gravity(self, SCREEN_HEIGHT):
-        if self.is_jumping:  # apply gravity to pull the player down when in the air
+        if self.is_jumping and not self.is_on_platform:  # apply gravity to pull the player down when in the air
             self.velocity_y += self.gravity
             self.rect.y += self.velocity_y
 
-        if self.rect.y >= SCREEN_HEIGHT - 350:  # stop applying gravity when player reaches the ground
-            self.rect.y = SCREEN_HEIGHT - 350
+        if self.rect.y >= SCREEN_HEIGHT:  # stop applying gravity when player reaches the ground
+            self.rect.y = SCREEN_HEIGHT
             self.velocity_y = 0
             self.is_jumping = False
 
     def Take_Damage(self):  # reduce player health
         self.hp.Take_Damage()
 
-    def Draw(self, surface, camera):
+    
+
+    def Draw(self, surface, camera, show_debug_rects=True):
        # If camera is not passed, or it's a lambda function for cutscenes, skip the camera logic
         if hasattr(camera, 'apply'):
             surface.blit(self.image, camera.apply(self.rect))
         else:
-            surface.blit(self.image, self.rect)  # Just blit normally if no camera is used
+            surface.blit(self.image, camera.apply(self.rect))  # Just blit normally if no camera is used
+
+        if show_debug_rects:
+            pygame.draw.rect(surface, (0, 255, 0), camera.apply(self.rect), 2)
 
