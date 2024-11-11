@@ -30,7 +30,7 @@ class Engine:
         self.DISPLAYSURF.fill(WHITE)
         pygame.display.set_caption("Game")
 
-        bg_image_path = os.path.join(PROJECT_ROOT, 'assets', 'sprites', 'background', 'background_01.png')  # Construct the path
+        bg_image_path = os.path.join(PROJECT_ROOT, 'assets', 'sprites', 'background', 'background_03.jpg')  # Construct the path
         print(bg_image_path)
 
         

@@ -9,6 +9,7 @@ class LevelGeneration:
         self.sprite_sheet = pygame.image.load(sprite_sheet_path)
         self.sprites = {}  # Dictionary to hold the different platform sprites
         self.platforms = []  # List to hold the platform rectangles
+        self.left_wall_tiles = []  # Store wall tiles on the left side of the screen
 
         self.load_sprites(15, 15)
 
@@ -48,6 +49,13 @@ class LevelGeneration:
         self.platforms.clear()
 
         # Iterate through the level data and place the correct platform sprite based on the number
+
+        for y, row in enumerate(self.level_data):
+            if row[0] != -1:  # Check if the first column cell is a wall tile
+                x, y = 0, y * self.tile_size  # Position based on tile size
+                wall_rect = pygame.Rect(x, y, self.tile_size, self.tile_size)
+                self.left_wall_tiles.append(wall_rect)
+                
         for y, row in enumerate(self.level_data):
             for x, cell in enumerate(row):
                 if 1 <= cell <= 30:  # Platform cells
@@ -121,6 +129,13 @@ class LevelGeneration:
 
         # Set `is_on_platform` based on whether the player is supported
         player.is_on_platform = player_on_platform
+
+        for wall_rect in self.left_wall_tiles:
+            if player.rect.colliderect(wall_rect):
+                player.can_move_left = False
+                break
+        else:
+            player.can_move_left = True  # Allow left movement if not colliding with the wall
 
 
     # def Check_Collision(self, player):

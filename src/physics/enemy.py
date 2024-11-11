@@ -20,9 +20,10 @@ class Enemy(pygame.sprite.Sprite):
         self.image = frame
 
         self.rect = self.image.get_rect()
+        self.rect = self.rect.inflate(-20, -10)
         self.rect.center = (1150, 465)
 
-    def Draw(self, surface, camera, show_debug_rects = True):
+    def Draw(self, surface, camera, show_debug_rects = False):
         surface.blit(self.image, camera.apply(self.rect))
 
         if show_debug_rects:
