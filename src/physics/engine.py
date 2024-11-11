@@ -119,7 +119,7 @@ class Engine:
             level_gen.load_level()
 
             # Update player and camera
-            P1.Update(level_data, E1, camera, self.SCREEN_HEIGHT)
+            P1.Update(level_gen, E1, camera, self.SCREEN_HEIGHT)
             camera.update()
             cherry.update(P1)
 

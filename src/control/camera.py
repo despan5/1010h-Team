@@ -6,8 +6,12 @@ class Camera:
         self.screen_width = screen_width
 
     def update(self):
-        # Center the camera on the player’s x position
-        self.offset_x = -(self.player.rect.centerx - self.screen_width // 2)
+        # Start following the player only when they reach the center of the screen
+        if self.player.rect.centerx > self.screen_width // 2:
+            self.offset_x = -(self.player.rect.centerx - self.screen_width // 2)
+        else:
+            # Keep the camera stationary until the player reaches the center
+            self.offset_x = 0
 
     def apply(self, obj_rect):
         # Apply the offset to objects' rect

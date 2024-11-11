@@ -21,16 +21,17 @@ class Player(pygame.sprite.Sprite):
         self.image = self.current_sprites[self.current_frame]
         self.rect = self.image.get_rect()
         self.rect.center = (400, SCREEN_HEIGHT - 500)
+        
 
         # variables for player movement and actions
         self.is_jumping = False
         self.is_on_platform = False
         self.velocity_y = 0
         self.gravity = 1.5
-        self.jump_strength = -35.5
+        self.jump_strength = -25
         self.is_moving = False
         self.is_facing_right = True
-        self.movement_speed = 12
+        self.movement_speed = 8
 
         # animation timing
         self.animation_delay = 10
@@ -75,7 +76,7 @@ class Player(pygame.sprite.Sprite):
                 self.is_facing_right = True
 
         # jumping logic -- space key (trigger jump only when on the ground)
-        if pressed_keys[pygame.K_SPACE] and not self.is_jumping:
+        if pressed_keys[pygame.K_SPACE] and self.is_on_platform and not self.is_jumping:
             self.Jump(SCREEN_HEIGHT)
 
         # Store the current sprite state for comparison later
@@ -129,18 +130,17 @@ class Player(pygame.sprite.Sprite):
             camera.update()
 
     def Jump(self, SCREEN_HEIGHT):
-        self.is_jumping = True
-        self.velocity_y = self.jump_strength
+        if self.is_on_platform:  # Ensure the player can only jump when on a platform
+            self.is_jumping = True
+            self.velocity_y = self.jump_strength  # Set the initial jump strength
 
     def Apply_Gravity(self, SCREEN_HEIGHT):
-        if self.is_jumping and not self.is_on_platform:  # apply gravity to pull the player down when in the air
+        if not self.is_on_platform:
             self.velocity_y += self.gravity
             self.rect.y += self.velocity_y
-
-        if self.rect.y >= SCREEN_HEIGHT:  # stop applying gravity when player reaches the ground
-            self.rect.y = SCREEN_HEIGHT
-            self.velocity_y = 0
-            self.is_jumping = False
+            print(f"Gravity applied: velocity_y={self.velocity_y}, rect.bottom={self.rect.bottom}")
+        else:
+            print(f"No gravity: is_on_platform={self.is_on_platform}, velocity_y={self.velocity_y}")
 
     def Take_Damage(self):  # reduce player health
         self.hp.Take_Damage()

@@ -98,54 +98,79 @@ class LevelGeneration:
         except KeyError:
             print(f"Error: No sprite found for cell {cell}")
         return None
-
+    
     def Check_Collision(self, player):
-        # Variable to track if the player is standing on any platform
         player_on_platform = False
-        collided_platform_rect = None
-        BUFFER = 5  # Small buffer for collision check
+        BUFFER = 5  # Small buffer to prevent micro-bouncing
 
         for platform_rect in self.platforms:
-            # Check if the player is falling (velocity > 0) and is close enough to the platform's top to land
-            if player.velocity_y > 0:  # Ensure only downward movement triggers landing logic
-                if (
-                    player.rect.bottom + player.velocity_y >= platform_rect.top - BUFFER and
-                    player.rect.bottom <= platform_rect.bottom and
-                    platform_rect.left < player.rect.right and
-                    player.rect.left < platform_rect.right
-                ):
+            # Check if the player is falling and is within the range to land on the platform
+            if (
+                player.velocity_y > 0 and
+                player.rect.bottom + player.velocity_y >= platform_rect.top - BUFFER and
+                player.rect.bottom <= platform_rect.top + BUFFER and
+                platform_rect.left < player.rect.right and
+                player.rect.left < platform_rect.right
+            ):
+                # Snap player to the platform's top
+                player.rect.bottom = platform_rect.top
+                player.velocity_y = 0  # Stop vertical movement when landing
+                player.is_jumping = False  # Reset jumping state
+                player_on_platform = True
+                break  # Exit loop after finding a platform collision
+
+        # Set `is_on_platform` based on whether the player is supported
+        player.is_on_platform = player_on_platform
+
+
+    # def Check_Collision(self, player):
+    #     # Variable to track if the player is standing on any platform
+    #     player_on_platform = False
+    #     collided_platform_rect = None
+    #     BUFFER = 10  # Small buffer for collision check
+    #     OFFSET = 10  # Offset to prevent player from falling off the platform
+
+    #     for platform_rect in self.platforms:
+    #         # Check if the player is falling (velocity > 0) and is close enough to the platform's top to land
+    #         if player.velocity_y > 0:  # Ensure only downward movement triggers landing logic
+    #             if (
+    #                 player.rect.bottom + player.velocity_y >= platform_rect.top - BUFFER and
+    #                 player.rect.bottom <= platform_rect.bottom - BUFFER and
+    #                 platform_rect.left < player.rect.right and
+    #                 player.rect.left < platform_rect.right
+    #             ):
                     
-                    #print(f"Landing detected at Platform Top: {platform_rect.top}")
+    #                 #print(f"Landing detected at Platform Top: {platform_rect.top}")
 
-                    # Player has landed on the platform
-                    player.rect.bottom = platform_rect.top  # Snap player's bottom to the platform's top
-                    player.velocity_y = 0  # Stop vertical movement
-                    player.is_jumping = False  # Player is not jumping
-                    player_on_platform = True  # Mark the player as on a platform
-                    player.is_on_platform = True  # Mark the player as on a platform
-                    collided_platform_rect = platform_rect
-                    break  # Exit loop once a collision is found
+    #                 # Player has landed on the platform
+    #                 player.rect.bottom = platform_rect.top  # Snap player's bottom to the platform's top
+    #                 player.velocity_y = 0  # Stop vertical movement
+    #                 player.is_jumping = False  # Player is not jumping
+    #                 player_on_platform = True  # Mark the player as on a platform
+    #                 player.is_on_platform = True  # Mark the player as on a platform
+    #                 collided_platform_rect = platform_rect
+    #                 break  # Exit loop once a collision is found
 
-        # Update `is_on_platform` based on collision checks
-        if player_on_platform:
-            player.is_on_platform = True
-            player.rect.bottom = collided_platform_rect.top  # Ensure player stays on the platform
-            player.velocity_y = 0
-            player.is_jumping = False
-        else:
-            # Check if the player is no longer supported by any platform
-            is_still_supported = any(
-                platform_rect.left < player.rect.centerx < platform_rect.right and
-                abs(platform_rect.top - player.rect.bottom) <= BUFFER
-                for platform_rect in self.platforms
-            )
+    #     # Update `is_on_platform` based on collision checks
+    #     if player_on_platform:
+    #         player.is_on_platform = True
+    #         if player.rect.bottom != collided_platform_rect.top + OFFSET:  # Only adjust if not already on the platform
+    #             player.rect.bottom = collided_platform_rect.top + OFFSET  # Ensure player stays on the platform
+    #             player.velocity_y = 0  # Stop vertical movement
+    #             player.is_jumping = False
+    #     else:
+    #         # Check if the player is no longer supported by any platform
+    #         is_still_supported = any(
+    #             platform_rect.colliderect(player.rect.move(0, BUFFER))
+    #             for platform_rect in self.platforms
+    #         )
 
-            #print(f"Player is_still_supported: {is_still_supported}")
+    #         print(f"Player is_still_supported: {is_still_supported} and is_jumping: {player.is_jumping}")
 
-            if not is_still_supported:
-                player.is_jumping = True  # Start falling when not supported
-                player.is_on_platform = False  # Player is no longer on a platform
-                #print("Player starts falling.")
-            else: 
-                #print("Player remains on the platform.")
-                pass
+    #         if not is_still_supported:
+    #             player.is_jumping = True  # Start falling when not supported
+    #             player.is_on_platform = False  # Player is no longer on a platform
+    #             #print("Player starts falling.")
+    #         else: 
+    #             #print("Player remains on the platform.")
+    #             pass
