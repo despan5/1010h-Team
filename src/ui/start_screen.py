@@ -53,9 +53,9 @@ class StartScreen:
             else:  # Descending
                 self.player.rect.y += jump_height / (jump_duration // 2)  # Move down
             
-            # Update and draw the player with jumping effect
-            self.player.Update([], None, None, self.screen.get_height())  # Update player without collision detection
-            self.player.Draw(self.screen, None)  # Draw player
+            #Update and draw the player with jumping effect
+            # self.player.Update([], None, None, self.screen.get_height())  # Update player without collision detection
+            # self.player.Draw(self.screen, None)  # Draw player
             
             pygame.display.flip()
             pygame.time.delay(30)  # Control speed of jump

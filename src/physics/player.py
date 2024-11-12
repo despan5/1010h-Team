@@ -8,8 +8,7 @@ from constants import PROJECT_ROOT
 class Player(pygame.sprite.Sprite):
     def __init__(self, SCREEN_HEIGHT):
         super().__init__()
-        base_path = os.path.dirname(__file__) # get the directory where the script is located
-
+        
         # load sprite sheets for different animations
         self.idle_sprites = self.load_sprites(os.path.join(PROJECT_ROOT, 'assets', 'sprites', 'female', 'doux', 'base', 'idle.png'), 24, 24)
         self.move_sprites = self.load_sprites(os.path.join(PROJECT_ROOT, 'assets', 'sprites', 'female', 'doux', 'base', 'move.png'), 24, 24)
@@ -21,16 +20,21 @@ class Player(pygame.sprite.Sprite):
         self.current_frame = 0
         self.image = self.current_sprites[self.current_frame]
         self.rect = self.image.get_rect()
-        self.rect.center = (160, SCREEN_HEIGHT - 300)
+        self.rect = self.rect.inflate(-37.5, -10)  # Reduce width by 37.5 pixels and height by 25 pixels
+        self.rect.center = (400, SCREEN_HEIGHT - 500)
+        
 
         # variables for player movement and actions
         self.is_jumping = False
+        self.is_on_platform = False
         self.velocity_y = 0
         self.gravity = 1.5
-        self.jump_strength = -35.5
+        self.jump_strength = -25
         self.is_moving = False
         self.is_facing_right = True
-        self.movement_speed = 6
+        self.movement_speed = 8
+        self.can_double_jump = False  # Start with double jump disabled
+        self.can_move_left = True
 
         # animation timing
         self.animation_delay = 10
@@ -53,20 +57,20 @@ class Player(pygame.sprite.Sprite):
             frames.append(frame)
         return frames
 
-    def Update(self, platforms, enemy, camera, SCREEN_HEIGHT):
+    def Update(self, lvlgen, enemy, camera, SCREEN_HEIGHT):
         pressed_keys = pygame.key.get_pressed()
+
+        
 
         # reset movement and bite status at the start of update
         self.is_moving = False
         self.bite_animation_playing = False
 
         # movement logic for left (even while jumping)
-        if pressed_keys[pygame.K_LEFT]:
+        if pressed_keys[pygame.K_LEFT] and self.can_move_left:
             self.rect.move_ip(-self.movement_speed, 0)
             self.is_moving = True
-            if self.is_facing_right:  # Only flip if the sprite is facing right
-                self.is_facing_right = False
-
+            self.is_facing_right = False
         # movement logic for right (even while jumping)
         elif pressed_keys[pygame.K_RIGHT]:
             self.rect.move_ip(self.movement_speed, 0)
@@ -75,10 +79,10 @@ class Player(pygame.sprite.Sprite):
                 self.is_facing_right = True
 
         # jumping logic -- space key (trigger jump only when on the ground)
-        if pressed_keys[pygame.K_SPACE] and not self.is_jumping:
-            self.Jump(SCREEN_HEIGHT)
-
+        if pressed_keys[pygame.K_SPACE]:
+            self.Jump()
         # Store the current sprite state for comparison later
+        
         previous_sprites = self.current_sprites
 
         # determine which animation to use
@@ -101,7 +105,11 @@ class Player(pygame.sprite.Sprite):
         if previous_sprites != self.current_sprites:
             self.current_frame = 0
 
+        #print(f"Before Collision Check - Velocity Y: {self.velocity_y}, Is Jumping: {self.is_jumping}, Is On Platform: {self.is_on_platform}")
+
         # apply gravity and handle the jumping mechanism
+        lvlgen.Check_Collision(self)
+        
         self.Apply_Gravity(SCREEN_HEIGHT)
 
         # handle sprite flipping based on direction
@@ -116,35 +124,50 @@ class Player(pygame.sprite.Sprite):
             self.animation_counter = 0
 
         # check collisions with platforms and enemies
-        for platform in platforms:
-            platform.Check_Collision(self)
+    
+       
+
+        #print(f"After Collision Check - Velocity Y: {self.velocity_y}, Is Jumping: {self.is_jumping}, Is On Platform: {self.is_on_platform}")
 
         if enemy:
             enemy.Check_Collision(self, SCREEN_HEIGHT)
         if camera:
             camera.update()
 
-    def Jump(self, SCREEN_HEIGHT):
-        self.is_jumping = True
-        self.velocity_y = self.jump_strength
+    def Jump(self):
+        if self.is_on_platform:  # First jump
+            self.is_jumping = True
+            self.velocity_y = self.jump_strength
+            self.can_double_jump = True
+            self.is_on_platform = False
+
+        elif self.can_double_jump:  # Double jump
+            self.velocity_y = self.jump_strength
+            self.can_double_jump = False
+
+
 
     def Apply_Gravity(self, SCREEN_HEIGHT):
-        if self.is_jumping:  # apply gravity to pull the player down when in the air
+        if not self.is_on_platform:
             self.velocity_y += self.gravity
             self.rect.y += self.velocity_y
-
-        if self.rect.y >= SCREEN_HEIGHT - 350:  # stop applying gravity when player reaches the ground
-            self.rect.y = SCREEN_HEIGHT - 350
-            self.velocity_y = 0
+        else:
             self.is_jumping = False
+            self.can_double_jump = False  # Reset double jump on landing
+
 
     def Take_Damage(self):  # reduce player health
         self.hp.Take_Damage()
 
-    def Draw(self, surface, camera):
+    
+
+    def Draw(self, surface, camera, show_debug_rects=True):
        # If camera is not passed, or it's a lambda function for cutscenes, skip the camera logic
         if hasattr(camera, 'apply'):
             surface.blit(self.image, camera.apply(self.rect))
         else:
-            surface.blit(self.image, self.rect)  # Just blit normally if no camera is used
+            surface.blit(self.image, camera.apply(self.rect))  # Just blit normally if no camera is used
+
+        if show_debug_rects:
+            pygame.draw.rect(surface, (0, 255, 0), camera.apply(self.rect), 2)
 

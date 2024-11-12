@@ -20,10 +20,14 @@ class Enemy(pygame.sprite.Sprite):
         self.image = frame
 
         self.rect = self.image.get_rect()
+        self.rect = self.rect.inflate(-20, -10)
         self.rect.center = (1150, 465)
 
-    def Draw(self, surface, camera):
+    def Draw(self, surface, camera, show_debug_rects = False):
         surface.blit(self.image, camera.apply(self.rect))
+
+        if show_debug_rects:
+            pygame.draw.rect(surface, (0, 255, 0), camera.apply(self.rect), 2)
 
     def Check_Collision(self, player, SCREEN_HEIGHT):
         if self.rect.colliderect(player.rect):
