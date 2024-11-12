@@ -161,7 +161,7 @@ class Player(pygame.sprite.Sprite):
 
     
 
-    def Draw(self, surface, camera, show_debug_rects=False):
+    def Draw(self, surface, camera, show_debug_rects=True):
        # If camera is not passed, or it's a lambda function for cutscenes, skip the camera logic
         if hasattr(camera, 'apply'):
             surface.blit(self.image, camera.apply(self.rect))

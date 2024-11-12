@@ -44,7 +44,7 @@ class LevelGeneration:
                     "height": scaled_sprite.get_height()
                 }
 
-    def generate_level(self, screen, camera, player, show_debug_rects=True):
+    def generate_level(self, screen, camera, player, show_debug_rects=False):
         # Clear the platform list at the start of each frame
         self.platforms.clear()
 
