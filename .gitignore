@@ -2,7 +2,7 @@
 .vscode/
 .idea/
 __pycache__/
-
+.env
 # Files
 *.pyc
 .env
