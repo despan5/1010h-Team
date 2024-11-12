@@ -76,7 +76,5 @@ class Health:
                 if self.alpha > (255):
                     self.alpha = 255
 
-            
-
+                    
             surface.blit(death_text, death_text_rect)
-
