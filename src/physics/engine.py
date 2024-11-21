@@ -10,7 +10,9 @@ from physics.obstacles import Obstacles, Door
 from constants import TPS, MAIN_CLOCK, WHITE, PROJECT_ROOT
 from physics.consumable import Consumable
 from ui.start_screen import StartScreen
+from ui.death_screen import DeathScreen
 from control.level_generation import LevelGeneration
+from ui.game_state import GameState
 
 
 class Engine:
@@ -68,9 +70,15 @@ class Engine:
         #         if start_screen.handle_event(event):
         #             in_start_screen = False  # Proceed to game when Enter is pressed
 
-        current_level = 1
+        # Initialize game state
+        game_state = GameState()
 
-        
+        # Initialize and display the start screen
+        death_screen = DeathScreen(self.DISPLAYSURF)
+        start_screen = StartScreen(self.DISPLAYSURF)
+        in_start_screen = True
+
+        current_level = 1
         P1 = Player(self.SCREEN_HEIGHT)
         E1 = Enemy()
         camera = Camera(P1, self.SCREEN_WIDTH)
@@ -80,75 +88,104 @@ class Engine:
         Engine.generate_platforms(platforms, self.LEVEL_LENGTH)
         door = Door(self.LEVEL_LENGTH - 200, self.SCREEN_HEIGHT - 450)  # Place door near the end of the level
 
-        # Load Music
-        music_path = os.path.join(PROJECT_ROOT, 'assets', 'sound', 'song1.mp3')
-        pygame.mixer.music.load(music_path)
 
-        # Play the music (-1 means loop indefinitely)
-        pygame.mixer.music.play(-1)
 
-        while True:
-            for event in pygame.event.get():
-                if event.type == QUIT:
-                    return None
-                elif event.type == KEYDOWN:
-                    if event.key == K_ESCAPE:
-                        pygame.mixer.music.stop()
-                        pygame.QUIT()
-                        sys.exit()
 
-            lvl_sheet = os.path.join(PROJECT_ROOT, 'assets', 'sprites', 'Platforms', 'generic-grassdirt-tileset', 'lavatiles.png')
+         # Main game loop
+        while game_state.current != game_state.states['QUIT']:
+            if game_state.is_current('START_MENU'):
+                start_screen.draw()
+                pygame.display.flip()
 
-            level_data = LevelGeneration(os.path.join(PROJECT_ROOT, 'assets', 'level_files', 'level1.csv'), 16, lvl_sheet)
-            level_data.load_level()
+                for event in pygame.event.get():
+                    result = start_screen.handle_event(event)
+                    if result == 'START_GAME':
+                        game_state.set_state('GAME_RUNNING')
+                    elif result == 'QUIT':
+                        game_state.set_state('QUIT')
 
-            # Get rows and columns for the aspect ratio calculation
-            rows = len(level_data.level_data)
-            cols = len(level_data.level_data[0]) if rows > 0 else 0
+            elif game_state.is_current('GAME_RUNNING'):
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        game_state.set_state('QUIT')
+                    elif event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_ESCAPE:
+                            pygame.mixer.music.stop()
+                            pygame.quit()
+                            sys.exit()
 
-            # Calculate aspect ratio of the level
-            aspect_ratio = cols / rows if rows > 0 else 1
-            # print(aspect_ratio)
 
-            # Calculate tile size to make the level fill the screen vertically
-            scale_factor = self.SCREEN_HEIGHT / rows
-            self.tile_size = int(scale_factor)
+                lvl_sheet = os.path.join(PROJECT_ROOT, 'assets', 'sprites', 'Platforms', 'generic-grassdirt-tileset', 'lavatiles.png')
 
-            # Re-adjust the width to match the height scaling, so the aspect ratio is preserved
-            self.level_width = int(self.tile_size * cols)
-            level_gen = LevelGeneration(os.path.join(PROJECT_ROOT, 'assets', 'level_files', 'level1.csv'), self.tile_size, lvl_sheet)
-            level_gen.load_level()
+                level_data = LevelGeneration(os.path.join(PROJECT_ROOT, 'assets', 'level_files', 'level1.csv'), 16, lvl_sheet)
+                level_data.load_level()
 
-            # Update player and camera
-            P1.Update(level_gen, E1, camera, self.SCREEN_HEIGHT)
-            camera.update()
-            cherry.update(P1)
+                # Get rows and columns for the aspect ratio calculation
+                rows = len(level_data.level_data)
+                cols = len(level_data.level_data[0]) if rows > 0 else 0
 
-            # Check if player reaches the door to go to the next level
-            if door.Check_Collision(P1):
-                current_level += 1
-                P1.rect.center = (160, self.SCREEN_HEIGHT - 300)  # Reset player position
-                platforms = []
-                Engine.generate_platforms(platforms, self.LEVEL_LENGTH)  # Generate new random platforms
-                door = Door(self.LEVEL_LENGTH - 200, self.SCREEN_HEIGHT - 450)  # Place door at the end of the new level
+                # Calculate aspect ratio of the level
+                aspect_ratio = cols / rows if rows > 0 else 1
+                # print(aspect_ratio)
 
-            # Background scrolling logic
-            self.DISPLAYSURF.blit(self.bg, (camera.offset_x % self.SCREEN_WIDTH, 0))
-            if camera.offset_x % self.SCREEN_WIDTH != 0:
-                self.DISPLAYSURF.blit(self.bg, (camera.offset_x % self.SCREEN_WIDTH - self.SCREEN_WIDTH, 0))
+                # Calculate tile size to make the level fill the screen vertically
+                scale_factor = self.SCREEN_HEIGHT / rows
+                self.tile_size = int(scale_factor)
 
-            P1.Draw(self.DISPLAYSURF, camera)
-            E1.Draw(self.DISPLAYSURF, camera)
-            cherry.draw(self.DISPLAYSURF, camera)
+                # Re-adjust the width to match the height scaling, so the aspect ratio is preserved
+                self.level_width = int(self.tile_size * cols)
+                level_gen = LevelGeneration(os.path.join(PROJECT_ROOT, 'assets', 'level_files', 'level1.csv'), self.tile_size, lvl_sheet)
+                level_gen.load_level()
 
-            level_gen.generate_level(self.DISPLAYSURF, camera, P1)
+                # Update player and camera
+                P1.Update(level_gen, E1, camera, self.SCREEN_HEIGHT)
+                camera.update()
+                cherry.update(P1)
 
-            P1.hp.Draw(self.DISPLAYSURF, self.SCREEN_HEIGHT, self.SCREEN_WIDTH)
-            
-            door.Draw(self.DISPLAYSURF, camera)
-            
+                # Check if player reaches the door to go to the next level
+                if door.Check_Collision(P1):
+                    current_level += 1
+                    P1.rect.center = (160, self.SCREEN_HEIGHT - 300)  # Reset player position
+                    platforms = []
+                    Engine.generate_platforms(platforms, self.LEVEL_LENGTH)  # Generate new random platforms
+                    door = Door(self.LEVEL_LENGTH - 200, self.SCREEN_HEIGHT - 450)  # Place door at the end of the new level
+
+                # Background scrolling logic
+                self.DISPLAYSURF.blit(self.bg, (camera.offset_x % self.SCREEN_WIDTH, 0))
+                if camera.offset_x % self.SCREEN_WIDTH != 0:
+                    self.DISPLAYSURF.blit(self.bg, (camera.offset_x % self.SCREEN_WIDTH - self.SCREEN_WIDTH, 0))
+
+                P1.Draw(self.DISPLAYSURF, camera)
+                E1.Draw(self.DISPLAYSURF, camera)
+                cherry.draw(self.DISPLAYSURF, camera)
+
+                level_gen.generate_level(self.DISPLAYSURF, camera, P1)
+
+                P1.hp.Draw(self.DISPLAYSURF, self.SCREEN_HEIGHT, self.SCREEN_WIDTH)
+                
+                door.Draw(self.DISPLAYSURF, camera)
+
+                # Check if player is dead
+                if P1.hp.health_count <= 0:
+                    game_state.set_state('DEATH_SCREEN')
+
+                pygame.display.flip()  # Update the full display Surface to the screen
+
+            # Death Screen Loop
+            elif game_state.is_current('DEATH_SCREEN'):
+                death_screen.draw()
+                pygame.display.flip()
+
+                for event in pygame.event.get():
+                    result = death_screen.handle_event(event, game_state, P1)
+                    if result == 'RESTART':
+                        game_state.set_state('START_MENU')
+                    elif result == 'QUIT':
+                        game_state.set_state('QUIT')    
             
 
             # Update display
-            pygame.display.update()
-            MAIN_CLOCK.tick(TPS)
+        pygame.display.update()
+        MAIN_CLOCK.tick(TPS)
+
+        pygame.quit()

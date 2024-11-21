@@ -3,8 +3,6 @@ import pygame
 
 class DeathScreen:
     def __init__(self, screen):
-        # Initialize Music
-        pygame.mixer.init()
         self.screen = screen
         self.title_font = pygame.font.Font(None, 100)
         self.button_font = pygame.font.Font(None, 36)
@@ -16,9 +14,6 @@ class DeathScreen:
         self.retry_button_rect = self.retry_button_text.get_rect(center=(self.screen.get_width() // 2, 400))
         self.quit_button_rect = self.quit_button_text.get_rect(center=(self.screen.get_width() // 2, 500))
 
-        # Load Music
-        pygame.mixer.music.load('assets/sound/start_song.mp3')  # Updated to a more fitting sound if available
-        pygame.mixer.music.play(-1)  # Play the music indefinitely
 
 
 
