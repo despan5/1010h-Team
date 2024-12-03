@@ -16,18 +16,26 @@ class Consumable(pygame.sprite.Sprite):
         self.rect.y = y
         self.is_collected = False
 
-    def update(self, player):
+    def update(self, player, health):
         # Check for collision with the player
 
-        if self.rect.colliderect(player.rect):
-            self.on_collect()
+        if not self.is_collected and self.rect.colliderect(player.rect):
+            self.on_collect(health)
 
-    def on_collect(self):
+    def on_collect(self, health):
         # Add code to update score, remove consumable, etc.
-        print("Collected!")
-        self.kill()  # Remove the sprite
+        print(f"Before collecting: Health = {health.health_count}")
+        if health.health_count < 4:  # Ensure health doesn't exceed the max
+            health.health_count += 1
+            health.current_frame = 4 - health.health_count
+            health.health_image = health.health_frames[health.current_frame]
+            print(f"After collecting: Health = {health.health_count}")
+        else:
+            print("Health is already at maximum!")
         self.is_collected = True
-        # hp.health_count += 1
+        self.kill()  # Remove the sprite
+        
+        
 
     def draw(self, surface, camera):
         if self.is_collected == False:

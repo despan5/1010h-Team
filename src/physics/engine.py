@@ -13,6 +13,7 @@ from ui.start_screen import StartScreen
 from ui.death_screen import DeathScreen
 from control.level_generation import LevelGeneration
 from ui.game_state import GameState
+from control.health import Health
 
 
 class Engine:
@@ -58,37 +59,23 @@ class Engine:
 
     def run_engine(self):
 
-        # Initialize and display the start screen
-        # start_screen = StartScreen(self.DISPLAYSURF)
-        # in_start_screen = True
-
-        # while in_start_screen:
-        #     start_screen.draw()
-        #     for event in pygame.event.get():
-        #         if event.type == QUIT:
-        #             return None
-        #         if start_screen.handle_event(event):
-        #             in_start_screen = False  # Proceed to game when Enter is pressed
-
         # Initialize game state
         game_state = GameState()
 
         # Initialize and display the start screen
         death_screen = DeathScreen(self.DISPLAYSURF)
-        start_screen = StartScreen(self.DISPLAYSURF)
-        in_start_screen = True
+        start_screen = StartScreen(self.DISPLAYSURF, Player(self.SCREEN_HEIGHT))
 
         current_level = 1
         P1 = Player(self.SCREEN_HEIGHT)
         E1 = Enemy()
         camera = Camera(P1, self.SCREEN_WIDTH)
         cherry = Consumable(400, 650)
+        health = Health()
     
         platforms = []
         Engine.generate_platforms(platforms, self.LEVEL_LENGTH)
         door = Door(self.LEVEL_LENGTH - 200, self.SCREEN_HEIGHT - 450)  # Place door near the end of the level
-
-
 
 
          # Main game loop
@@ -140,7 +127,7 @@ class Engine:
                 # Update player and camera
                 P1.Update(level_gen, E1, camera, self.SCREEN_HEIGHT)
                 camera.update()
-                cherry.update(P1)
+                cherry.update(P1, P1.hp)
 
                 # Check if player reaches the door to go to the next level
                 if door.Check_Collision(P1):
@@ -179,7 +166,7 @@ class Engine:
                 for event in pygame.event.get():
                     result = death_screen.handle_event(event, game_state, P1)
                     if result == 'RESTART':
-                        game_state.set_state('START_MENU')
+                        game_state.set_state('GAME_RUNNING')
                     elif result == 'QUIT':
                         game_state.set_state('QUIT')    
             

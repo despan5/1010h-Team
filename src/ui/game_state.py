@@ -12,7 +12,7 @@ class GameState():
         self.music_files = {
             'START_MENU': 'assets/sound/start_song.mp3',
             'GAME_RUNNING': 'assets/sound/song1.mp3',
-            'DEATH_SCREEN': 'assets/sound/start_song.mp3'
+            'DEATH_SCREEN': 'assets/sound/death_song.mp3'
         }
             
         self.current = None
