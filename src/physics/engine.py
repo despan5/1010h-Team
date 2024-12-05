@@ -68,7 +68,7 @@ class Engine:
 
         current_level = 1
         P1 = Player(self.SCREEN_HEIGHT)
-        E1 = Enemy()
+        E1 = Enemy(x=self.SCREEN_WIDTH - 500, y=self.SCREEN_HEIGHT - 300, width=200, height=100, end=self.SCREEN_WIDTH)
         camera = Camera(P1, self.SCREEN_WIDTH)
         cherry = Consumable(400, 650)
         health = Health()
