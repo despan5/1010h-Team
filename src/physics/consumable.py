@@ -5,6 +5,7 @@ from pygame.locals import *
 import random
 
 
+
 class Consumable(pygame.sprite.Sprite):
     
     def __init__(self, x, y):
@@ -26,11 +27,12 @@ class Consumable(pygame.sprite.Sprite):
         # Check for collision with the player
 
         if not self.is_collected and self.rect.colliderect(player.rect):
-            self.on_collect(health)
+            self.on_collect(health, player)
 
-    def on_collect(self, health):
+    def on_collect(self, health, player):
         # Add code to update score, remove consumable, etc.
         print(f"Before collecting: Health = {health.health_count}")
+        player.increase_score(10)  # Add to player's score
         if health.health_count < 4:  # Ensure health doesn't exceed the max
             health.health_count += 1
             health.current_frame = 4 - health.health_count
