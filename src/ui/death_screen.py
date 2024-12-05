@@ -29,7 +29,6 @@ class DeathScreen:
         """Handles keyboard events and updates game state accordingly."""
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_RETURN:  # Restart game when Enter is pressed
-                P1.hp.health_count = 4  # Reset to full health or your desired initial value
                 return 'RESTART'
             elif event.key == pygame.K_ESCAPE:  # Quit game when Escape is pressed
                 pygame.mixer.music.stop()

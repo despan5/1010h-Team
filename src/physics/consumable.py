@@ -2,12 +2,18 @@ import pygame
 import os
 from constants import PROJECT_ROOT
 from pygame.locals import *
+import random
 
 
 class Consumable(pygame.sprite.Sprite):
     
     def __init__(self, x, y):
         super().__init__()
+
+        # Screen information
+        self.info = pygame.display.Info()
+        self.SCREEN_WIDTH = self.info.current_w
+        self.SCREEN_HEIGHT = self.info.current_h
 
         self.cherry_image =  self.load_sprites(os.path.join(PROJECT_ROOT, 'assets', 'sprites', 'fruits', '03.png'), 16, 16)
         self.image = self.cherry_image[0]
@@ -56,3 +62,9 @@ class Consumable(pygame.sprite.Sprite):
             frame = pygame.transform.scale(frame, (50, 50))
             frames.append(frame)
         return frames
+    
+    def reset(self):
+        self.is_collected = False
+        # Generate random position for the consumable
+        self.rect.x = random.randint(0, self.SCREEN_WIDTH - self.rect.width)
+        self.rect.y = random.randint(0, self.SCREEN_HEIGHT - self.rect.height)
