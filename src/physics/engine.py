@@ -45,6 +45,8 @@ class Engine:
 
         self.LEVEL_LENGTH = 5000  # Set level length for each level
 
+        self.font = pygame.font.Font(None, 36)  # Default font with size 36
+
     # Platform generation
     @staticmethod
     def generate_platforms(platforms, level_length):
@@ -155,6 +157,10 @@ class Engine:
                 # Check if player is dead
                 if P1.hp.health_count <= 0:
                     game_state.set_state('DEATH_SCREEN')
+
+                # Display score
+                score_text = self.font.render(f"Score: {P1.get_score()}", True, (0, 0, 0))
+                self.DISPLAYSURF.blit(score_text, (10, 10))  # Display in the top-left corner
 
                 pygame.display.flip()  # Update the full display Surface to the screen
 

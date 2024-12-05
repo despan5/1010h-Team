@@ -34,3 +34,4 @@ class Enemy(pygame.sprite.Sprite):
             player.rect.center = (160, SCREEN_HEIGHT - 300)
 
             player.hp.Take_Damage()
+            player.decrease_score(10)  # Lose points

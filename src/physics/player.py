@@ -44,6 +44,8 @@ class Player(pygame.sprite.Sprite):
         # health
         self.hp = Health()
 
+        self.score = 0  # Initialize score
+
     def load_sprites(self, sprite_sheet_path, frame_width, frame_height):
         # load the sprite sheet
         sprite_sheet = pygame.image.load(sprite_sheet_path)
@@ -170,4 +172,13 @@ class Player(pygame.sprite.Sprite):
 
         if show_debug_rects:
             pygame.draw.rect(surface, (0, 255, 0), camera.apply(self.rect), 2)
+
+    def increase_score(self, amount):
+        self.score += amount
+
+    def decrease_score(self, amount):
+        self.score -= amount
+
+    def get_score(self):
+        return self.score
 
