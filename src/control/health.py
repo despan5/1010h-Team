@@ -57,26 +57,44 @@ class Health:
         if (self.health_count > 0):
             #print(f"Drawing frame: {self.current_frame}")
             surface.blit(self.health_image, (x, y))
-        elif (self.health_count == 0):
-            font = pygame.font.SysFont('Adobe Garamond', 100)
-            red = (255, 0, 0)
-            black = (0, 0, 0)
-            death_text = font.render("YOU DIED", True, red)
-            death_text_rect = death_text.get_rect(center=(width // 2, height // 2))
+
+
+    def reset(self):
+        self.health_count = 4  # Reset to full health
+        self.current_frame = 4 - self.health_count
+        self.health_image = self.health_frames[self.current_frame]
+        self.alpha = 0  # Reset alpha for death screen
+
+
+
+
+
+
+
+
+
+
+
+        # elif (self.health_count == 0):
+        #     font = pygame.font.SysFont('Adobe Garamond', 100)
+        #     red = (255, 0, 0)
+        #     black = (0, 0, 0)
+        #     death_text = font.render("YOU DIED", True, red)
+        #     death_text_rect = death_text.get_rect(center=(width // 2, height // 2))
 
             
 
-            death_text.set_alpha(self.alpha)
+        #     death_text.set_alpha(self.alpha)
 
-            surface.fill(black)
+        #     surface.fill(black)
             
 
-            if self.alpha < (255):
-                self.alpha += self.fade_speed
-                if self.alpha > (255):
-                    self.alpha = 255
+        #     if self.alpha < (255):
+        #         self.alpha += self.fade_speed
+        #         if self.alpha > (255):
+        #             self.alpha = 255
 
             
 
-            surface.blit(death_text, death_text_rect)
+        #     surface.blit(death_text, death_text_rect)
 

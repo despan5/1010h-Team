@@ -166,6 +166,8 @@ class Engine:
                 for event in pygame.event.get():
                     result = death_screen.handle_event(event, game_state, P1)
                     if result == 'RESTART':
+                        P1.hp.reset()
+                        cherry.reset()
                         game_state.set_state('GAME_RUNNING')
                     elif result == 'QUIT':
                         game_state.set_state('QUIT')    
