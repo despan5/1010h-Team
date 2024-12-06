@@ -6,13 +6,15 @@ class GameState():
             'START_MENU': 1,
             'GAME_RUNNING': 2,
             'DEATH_SCREEN': 3,
-            'QUIT': 4
+            'HIGH_SCORE': 4,
+            'QUIT': 5
         }
 
         self.music_files = {
             'START_MENU': 'assets/sound/start_song.mp3',
             'GAME_RUNNING': 'assets/sound/song1.mp3',
-            'DEATH_SCREEN': 'assets/sound/death_song.mp3'
+            'DEATH_SCREEN': 'assets/sound/death_song.mp3',
+            'HIGH_SCORE': 'assets/sound/high_score.mp3'
         }
             
         self.current = None

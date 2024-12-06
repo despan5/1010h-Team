@@ -3,17 +3,20 @@ import sys
 import random
 import os
 from pygame.locals import *
-from control.camera import Camera
+from constants import TPS, MAIN_CLOCK, WHITE, PROJECT_ROOT
 from physics.player import Player
 from physics.enemy import Enemy
 from physics.obstacles import Obstacles, Door
-from constants import TPS, MAIN_CLOCK, WHITE, PROJECT_ROOT
 from physics.consumable import Consumable
+from ui.game_state import GameState
 from ui.start_screen import StartScreen
 from ui.death_screen import DeathScreen
+from ui.high_score import HighScore
+from ui.score_manager import ScoreManager
 from control.level_generation import LevelGeneration
-from ui.game_state import GameState
 from control.health import Health
+from control.camera import Camera
+
 
 
 class Engine:
@@ -66,14 +69,16 @@ class Engine:
 
         # Initialize and display the start screen
         death_screen = DeathScreen(self.DISPLAYSURF)
-        start_screen = StartScreen(self.DISPLAYSURF, Player(self.SCREEN_HEIGHT))
+        start_screen = StartScreen(self.DISPLAYSURF)
+        high_score_screen = HighScore(self.DISPLAYSURF)
+        score_manager = ScoreManager()
+        player_id = "player1"
 
         current_level = 1
         P1 = Player(self.SCREEN_HEIGHT)
         E1 = Enemy()
         camera = Camera(P1, self.SCREEN_WIDTH)
         cherry = Consumable(400, 650)
-        health = Health()
     
         platforms = []
         Engine.generate_platforms(platforms, self.LEVEL_LENGTH)
@@ -91,6 +96,19 @@ class Engine:
                     if result == 'START_GAME':
                         P1.username = start_screen.username
                         game_state.set_state('GAME_RUNNING')
+                    elif result == 'SCORE_SCREEN':
+                        game_state.set_state('HIGH_SCORE')
+                    elif result == 'QUIT':
+                        game_state.set_state('QUIT')
+
+            elif game_state.is_current('HIGH_SCORE'):
+                high_score_screen.draw()
+                pygame.display.flip()
+
+                for event in pygame.event.get():
+                    result = high_score_screen.handle_event(event)
+                    if result == 'RETURN':
+                        game_state.set_state('START_MENU')
                     elif result == 'QUIT':
                         game_state.set_state('QUIT')
 
@@ -157,12 +175,14 @@ class Engine:
 
                 # Check if player is dead
                 if P1.hp.health_count <= 0:
+                    # Save the score at the end of the game
+                    score_manager.save_score(player_id, P1.get_score())
                     game_state.set_state('DEATH_SCREEN')
                     P1.update_score(P1.username, P1.score)  # Update the score in the database
 
                 # Display score
-                score_text = self.font.render(f"Score: {P1.get_score()}", True, (0, 0, 0))
-                self.DISPLAYSURF.blit(score_text, (10, 10))  # Display in the top-left corner
+                score_text = self.font.render(f"Score: {P1.get_score()}", True, (255, 255, 255))
+                self.DISPLAYSURF.blit(score_text, (50, 120))  # Display in the top-left corner
 
                 pygame.display.flip()  # Update the full display Surface to the screen
 
