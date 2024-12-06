@@ -2,6 +2,7 @@ import pygame
 import os
 from control.health import Health
 from constants import PROJECT_ROOT
+from ui.score_manager import ScoreManager
 
 
 
@@ -181,4 +182,8 @@ class Player(pygame.sprite.Sprite):
 
     def get_score(self):
         return self.score
+    
+    def save_score(self, player_name):
+        score_manager = ScoreManager()
+        score_manager.add_score(player_name, self.score)
 
