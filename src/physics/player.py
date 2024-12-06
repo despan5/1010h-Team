@@ -186,7 +186,7 @@ class Player(pygame.sprite.Sprite):
         return self.score
     
     def update_score(self, username, score):
-        Database().add_score(username, score
+        Database().add_score(username, score)
                              
     def save_score(self, player_name):
         score_manager = ScoreManager()
