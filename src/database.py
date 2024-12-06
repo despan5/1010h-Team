@@ -11,23 +11,26 @@ class Database():
         self.db = self.client.get_database("db1")  # Get the database named "db1"
         self.users_collection = self.db.get_collection('users')  # Get the "users" collection from the database
 
-    def add_user(self):
-        username = input("Enter username: ")  # Prompt the user to enter a username
-        password = input("Enter password: ")  # Prompt the user to enter a password
+    def check_user(self, username):
+        user = self.users_collection.find_one({"username": username})
+            
+        if user:
+            return True
+        else:
+            return False
         
-        hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())  # Hash the password using bcrypt
+    def add_user(self, username):
+
         self.users_collection.insert_one({
             "username": username,
-            "hashed_password": hashed.decode('utf-8')  # Store the hashed password in the database
         })
 
-    def login_user(self):
-        username = input("Enter username: ")  # Prompt the user to enter a username
-        password = input("Enter password: ")  # Prompt the user to enter a password
-        
-        user = self.users_collection.find_one({"username": username})  # Find the user in the database by username
+        print("User added successfully!")
 
-        if user and bcrypt.checkpw(password.encode('utf-8'), user['hashed_password'].encode('utf-8')):  # Check if the password matches
-            print("Login successful!")  # Print success message if the password matches
-        else:
-            print("Invalid username or password")  # Print error message if the username or password is incorrect
+    def add_score(self, username, score):
+        self.users_collection.update_one(
+            {"username": username},
+            {"$set": {"score": score}}
+        )
+
+        print("Score added successfully!")

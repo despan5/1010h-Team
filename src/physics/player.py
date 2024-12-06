@@ -2,6 +2,7 @@ import pygame
 import os
 from control.health import Health
 from constants import PROJECT_ROOT
+from database import Database
 
 
 
@@ -9,6 +10,7 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, SCREEN_HEIGHT):
         super().__init__()
         
+        self.username = None
         # load sprite sheets for different animations
         self.idle_sprites = self.load_sprites(os.path.join(PROJECT_ROOT, 'assets', 'sprites', 'female', 'doux', 'base', 'idle.png'), 24, 24)
         self.move_sprites = self.load_sprites(os.path.join(PROJECT_ROOT, 'assets', 'sprites', 'female', 'doux', 'base', 'move.png'), 24, 24)
@@ -163,7 +165,7 @@ class Player(pygame.sprite.Sprite):
 
     
 
-    def Draw(self, surface, camera, show_debug_rects=True):
+    def Draw(self, surface, camera, show_debug_rects=False):
        # If camera is not passed, or it's a lambda function for cutscenes, skip the camera logic
         if hasattr(camera, 'apply'):
             surface.blit(self.image, camera.apply(self.rect))
@@ -181,4 +183,7 @@ class Player(pygame.sprite.Sprite):
 
     def get_score(self):
         return self.score
+    
+    def update_score(self, username, score):
+        Database().add_score(username, score)
 

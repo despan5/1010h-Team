@@ -7,7 +7,7 @@ class Health:
     def __init__(self):
         pygame.font.init()
         self.font = pygame.font.SysFont(None, 48)
-        self.health_count = 1
+        self.health_count = 4
 
         base_path = os.path.dirname(__file__)
         health_bar_path = os.path.join(PROJECT_ROOT, 'assets', 'sprites', 'Health', 'health_bars', 'health_bar.png')
@@ -46,7 +46,6 @@ class Health:
 
             self.is_flasing = True
         elif self.health_count == 0:        
-
             print("you died")
             
     

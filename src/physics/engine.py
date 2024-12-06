@@ -89,6 +89,7 @@ class Engine:
                 for event in pygame.event.get():
                     result = start_screen.handle_event(event)
                     if result == 'START_GAME':
+                        P1.username = start_screen.username
                         game_state.set_state('GAME_RUNNING')
                     elif result == 'QUIT':
                         game_state.set_state('QUIT')
@@ -106,7 +107,7 @@ class Engine:
 
                 lvl_sheet = os.path.join(PROJECT_ROOT, 'assets', 'sprites', 'Platforms', 'generic-grassdirt-tileset', 'lavatiles.png')
 
-                level_data = LevelGeneration(os.path.join(PROJECT_ROOT, 'assets', 'level_files', 'level1.csv'), 16, lvl_sheet)
+                level_data = LevelGeneration(os.path.join(PROJECT_ROOT, 'assets', 'level_files', 'l5.csv'), 16, lvl_sheet)
                 level_data.load_level()
 
                 # Get rows and columns for the aspect ratio calculation
@@ -123,7 +124,7 @@ class Engine:
 
                 # Re-adjust the width to match the height scaling, so the aspect ratio is preserved
                 self.level_width = int(self.tile_size * cols)
-                level_gen = LevelGeneration(os.path.join(PROJECT_ROOT, 'assets', 'level_files', 'level1.csv'), self.tile_size, lvl_sheet)
+                level_gen = LevelGeneration(os.path.join(PROJECT_ROOT, 'assets', 'level_files', 'l5.csv'), self.tile_size, lvl_sheet)
                 level_gen.load_level()
 
                 # Update player and camera
@@ -157,6 +158,7 @@ class Engine:
                 # Check if player is dead
                 if P1.hp.health_count <= 0:
                     game_state.set_state('DEATH_SCREEN')
+                    P1.update_score(P1.username, P1.score)  # Update the score in the database
 
                 # Display score
                 score_text = self.font.render(f"Score: {P1.get_score()}", True, (0, 0, 0))
