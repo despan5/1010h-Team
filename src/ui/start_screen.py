@@ -87,6 +87,8 @@ class StartScreen:
                         
                 elif event.key == pygame.K_BACKSPACE:
                     self.input_text = self.input_text[:-1]  # Remove last character
+                elif event.key == pygame.K_TAB:
+                    return 'SCORE_SCREEN'
                 else:
                     if len(self.input_text) < self.max_characters:  # Check character limit
                         self.input_text += event.unicode  # Add typed character

@@ -1,5 +1,6 @@
 import pygame
 from ui.score_manager import ScoreManager
+from database import Database
 
 class HighScore:
     def __init__(self, screen):
@@ -19,7 +20,7 @@ class HighScore:
          # Initialize ScoreManager to fetch high scores
         self.score_manager = ScoreManager()  # You can pass the file name here if needed
         self.score_manager.load_scores()  # Make sure to load scores here
-        self.high_scores = self.score_manager.get_top_scores()  # Fetch the top scores after loading them
+        self.high_scores = Database().get_dict_of_all_scores_and_users()  # Fetch the top scores after loading them
 
 
     def draw(self):
@@ -34,7 +35,7 @@ class HighScore:
             print("No high scores loaded.")
         else:
             # Display the top scores
-            for index, (player_name, score) in enumerate(self.high_scores[:5]):  # Display top 5 scores
+            for index, (player_name, score) in enumerate(sorted(self.high_scores.items(), key=lambda item: item[1], reverse=True)[:5]):  # Sort by score in descending order and get top 5
                 score_text = pygame.font.Font(None, 36).render(f"{player_name}: {score}", True, (255, 255, 255))
                 self.screen.blit(score_text, (self.screen.get_width() // 2 - score_text.get_width() // 2, 300 + (index * 50)))
 

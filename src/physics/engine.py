@@ -95,6 +95,7 @@ class Engine:
                     result = start_screen.handle_event(event)
                     if result == 'START_GAME':
                         P1.username = start_screen.username
+                        P1.find_score(P1.username)  # Find the score of the player from the database
                         game_state.set_state('GAME_RUNNING')
                     elif result == 'SCORE_SCREEN':
                         game_state.set_state('HIGH_SCORE')
