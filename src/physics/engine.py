@@ -12,7 +12,7 @@ from ui.game_state import GameState
 from ui.start_screen import StartScreen
 from ui.death_screen import DeathScreen
 from ui.high_score import HighScore
-from ui.score_manager import ScoreManager
+
 from control.level_generation import LevelGeneration
 from control.health import Health
 from control.camera import Camera
@@ -71,7 +71,6 @@ class Engine:
         death_screen = DeathScreen(self.DISPLAYSURF)
         start_screen = StartScreen(self.DISPLAYSURF)
         high_score_screen = HighScore(self.DISPLAYSURF)
-        score_manager = ScoreManager()
         player_id = "player1"
 
         current_level = 1
@@ -177,7 +176,6 @@ class Engine:
                 # Check if player is dead
                 if P1.hp.health_count <= 0:
                     # Save the score at the end of the game
-                    score_manager.save_score(player_id, P1.get_score())
                     game_state.set_state('DEATH_SCREEN')
                     P1.update_score(P1.username, P1.score)  # Update the score in the database
 

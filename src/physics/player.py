@@ -3,7 +3,6 @@ import os
 from control.health import Health
 from constants import PROJECT_ROOT
 from database import Database
-from ui.score_manager import ScoreManager
 
 
 

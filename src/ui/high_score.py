@@ -1,5 +1,4 @@
 import pygame
-from ui.score_manager import ScoreManager
 from database import Database
 
 class HighScore:
@@ -18,8 +17,7 @@ class HighScore:
         self.quit_button_rect = self.quit_button_text.get_rect(center=(self.screen.get_width() // 2, 900))
 
          # Initialize ScoreManager to fetch high scores
-        self.score_manager = ScoreManager()  # You can pass the file name here if needed
-        self.score_manager.load_scores()  # Make sure to load scores here
+          # You can pass the file name here if needed  # Make sure to load scores here
         self.high_scores = Database().get_dict_of_all_scores_and_users()  # Fetch the top scores after loading them
 
 
