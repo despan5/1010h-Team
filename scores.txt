@@ -6,3 +6,15 @@ player1:-50
 player1:-10
 player1:-50
 player1:-90
+player1:-30
+player1:-70
+player1:-110
+player1:-150
+player1:-180
+player1:-30
+player1:-30
+player1:-30
+player1:-60
+player1:-90
+player1:-30
+player1:-30

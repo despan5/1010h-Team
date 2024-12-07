@@ -34,3 +34,16 @@ class Database():
         )
 
         print("Score added successfully!")
+
+    def get_score(self, username):
+        user = self.users_collection.find_one({"username": username})
+        return user.get('score')
+    
+    def get_dict_of_all_scores_and_users(self):
+        users = self.users_collection.find({})
+        scores = {}
+        for user in users:
+            scores[user.get('username')] = user.get('score')
+            if user.get('score') is None:
+                scores[user.get('username')] = 0
+        return scores
