@@ -3,7 +3,6 @@ import os
 from control.health import Health
 from constants import PROJECT_ROOT
 from database import Database
-from ui.score_manager import ScoreManager
 
 
 
@@ -187,10 +186,6 @@ class Player(pygame.sprite.Sprite):
     
     def update_score(self, username, score):
         Database().add_score(username, score)
-                             
-    def save_score(self, username):
-        score_manager = ScoreManager()
-        score_manager.add_score(username, self.score)
 
     def find_score(self, username):
         self.score = Database().get_score(username)
