@@ -6,3 +6,7 @@ player1:-50
 player1:-10
 player1:-50
 player1:-90
+player1:-30
+player1:-30
+player1:-30
+player1:1950
