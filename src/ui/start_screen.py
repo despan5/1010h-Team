@@ -94,11 +94,13 @@ class StartScreen:
                         self.input_text += event.unicode  # Add typed character
                 # Update the text surface
                 self.text_surface = self.input_font.render(self.input_text, True, (255, 255, 255))
-
+            elif event.key == pygame.K_TAB:
+                return 'SCORE_SCREEN'
             elif event.key == pygame.K_ESCAPE:  # Quit when Esc is pressed
                 pygame.mixer.music.stop()
                 pygame.quit()
                 return 'QUIT'
+            
         return None
 
     def update(self):

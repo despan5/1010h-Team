@@ -21,7 +21,7 @@ class Enemy(pygame.sprite.Sprite):
 
         self.rect = self.image.get_rect()
         self.rect = self.rect.inflate(-20, -10)
-        self.rect.center = (1150, 465)
+        self.rect.center = (1150, 1000)
 
     def Draw(self, surface, camera, show_debug_rects = False):
         surface.blit(self.image, camera.apply(self.rect))
@@ -31,7 +31,11 @@ class Enemy(pygame.sprite.Sprite):
 
     def Check_Collision(self, player, SCREEN_HEIGHT):
         if self.rect.colliderect(player.rect):
-            player.rect.center = (160, SCREEN_HEIGHT - 300)
+            if player.bite_animation_playing == True:
+                player.increase_score(10)
+            
+            else:
+                player.rect.center = (160, SCREEN_HEIGHT - 300)
 
-            player.hp.Take_Damage()
-            player.decrease_score(10)  # Lose points
+                player.hp.Take_Damage()
+                player.decrease_score(10)  # Lose points
