@@ -68,11 +68,11 @@ class Engine:
         platforms = []
         Engine.generate_platforms(platforms, self.LEVEL_LENGTH)
         door = Door(self.LEVEL_LENGTH - 200, self.SCREEN_HEIGHT - 450)
-        enemies = [
+        enemies = pygame.sprite.Group (
             Enemy(x=980, y=785, movement_range=160, platforms=platforms, screen_height=self.SCREEN_HEIGHT),
             Enemy(x=1840, y=330, movement_range=150, platforms=platforms, screen_height=self.SCREEN_HEIGHT),
             Enemy(x=2935, y=755, movement_range=150, platforms=platforms, screen_height=self.SCREEN_HEIGHT),
-        ]
+        )
         cherry = Consumable(400, 650)
         camera = Camera(P1, self.SCREEN_WIDTH)
 
@@ -129,6 +129,7 @@ class Engine:
                 P1.Update(level_gen, enemies, camera, self.SCREEN_HEIGHT)
                 for enemy in enemies:
                     enemy.update()
+                    enemy.Check_Collision(P1, self.SCREEN_HEIGHT)
                 camera.update()
                 cherry.update(P1, P1.hp)
 

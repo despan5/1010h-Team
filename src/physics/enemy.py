@@ -65,11 +65,16 @@ class Enemy(pygame.sprite.Sprite):
         if self.rect.colliderect(player.rect):
             if player.bite_animation_playing == True:
                 player.increase_score(100)
+                self.kill()
             else:
-                # Reset player position upon collision with the enemy
-                player.rect.center = (160, screen_height - 300)
+                 # Push the player back based on the collision direction
+                if player.rect.centerx < self.rect.centerx:  # Player is to the left of the enemy
+                    player.rect.x -= 150  # Push the player back to the left
+                else:  # Player is to the right of the enemy
+                    player.rect.x += 150  # Push the player back to the right
                 player.hp.Take_Damage()  # Assuming player has an hp attribute
 
     def Draw(self, surface, camera):
         """Draw the enemy sprite."""
         surface.blit(self.image, camera.apply(self.rect))
+        
