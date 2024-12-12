@@ -81,18 +81,18 @@ class Player(pygame.sprite.Sprite):
                 self.is_facing_right = True
 
         # Jumping logic -- space key (trigger jump only when on the ground)
-        if pressed_keys[pygame.K_SPACE]:
+        if pressed_keys[pygame.K_UP]:
             self.Jump()
 
         # Store the current sprite state for comparison later
         previous_sprites = self.current_sprites
 
         # Determine which animation to use
-        if self.is_jumping:  # If the player is in the air, always use jump animation
-            self.current_sprites = self.jump_sprites
-        elif pressed_keys[pygame.K_UP]:  # Bite attack logic
+        if pressed_keys[pygame.K_SPACE]:  # Bite attack logic
             self.current_sprites = self.bite_sprites  # Use bite animation
             self.bite_animation_playing = True
+        elif self.is_jumping:  # If the player is in the air, always use jump animation
+            self.current_sprites = self.jump_sprites
         elif self.is_moving:  # If no jumping and player is moving, use move animation
             self.current_sprites = self.move_sprites
         else:  # If no movement or jumping, play idle animation
