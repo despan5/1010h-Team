@@ -41,6 +41,7 @@ class Engine:
         self.LEVEL_LENGTH = 5000
         self.font = pygame.font.Font(None, 36)  # Default font with size 36
 
+
     # Platform generation
     @staticmethod
     def generate_platforms(platforms, level_length):
@@ -105,8 +106,8 @@ class Engine:
 
             elif game_state.is_current('GAME_RUNNING'):
                 for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
-                        game_state.set_state('QUIT')
+                    if event.type == pygame.KEYDOWN and event.key == pygame.K_p:
+                        game_state.set_state('PAUSE')
                     elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                         pygame.mixer.music.stop()
                         pygame.quit()
@@ -158,6 +159,20 @@ class Engine:
                 # Display score
                 score_text = self.font.render(f"Score: {P1.get_score()}", True, (255, 255, 255))
                 self.DISPLAYSURF.blit(score_text, (50, 120))
+
+                if game_state.is_current('PAUSE'):
+                    # Create the text surface
+                    pause_text = self.font.render('PAUSED', True, (255, 255, 255))
+
+                    # Get the rectangle of the text surface
+                    pause_text_rect = pause_text.get_rect()
+
+                    # Center the rectangle on the screen
+                    pause_text_rect.center = (self.SCREEN_WIDTH // 2, self.SCREEN_HEIGHT // 2)
+
+                    # Blit the text surface onto the display surface
+                    self.DISPLAYSURF.blit(pause_text, pause_text_rect)
+
                 pygame.display.flip()
 
             elif game_state.is_current('DEATH_SCREEN'):
@@ -172,6 +187,18 @@ class Engine:
                         game_state.set_state('GAME_RUNNING')
                     elif result == 'QUIT':
                         game_state.set_state('QUIT')
+
+            elif game_state.is_current('PAUSE'):
+                pause_text = self.font.render('PAUSED', True, (255, 255, 255))
+                self.DISPLAYSURF.blit(pause_text, (1000, 1000))
+
+                for event in pygame.event.get():
+                    if event.type == pygame.KEYDOWN and event.key == pygame.K_p:
+                        game_state.set_state('GAME_RUNNING')
+                    elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                        pygame.mixer.music.stop()
+                        pygame.quit()
+                        sys.exit() 
 
             MAIN_CLOCK.tick(TPS)
 
