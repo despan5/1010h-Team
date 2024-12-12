@@ -1,5 +1,7 @@
 import pygame
 import csv
+from constants import PROJECT_ROOT
+import os
 
 class LevelGeneration:
     def __init__(self, csv_path, tile_size, sprite_sheet_path):
@@ -10,8 +12,17 @@ class LevelGeneration:
         self.sprites = {}  # Dictionary to hold the different platform sprites
         self.platforms = []  # List to hold the platform rectangles
         self.left_wall_tiles = []  # Store wall tiles on the left side of the screen
+        self.door_positions = []
 
         self.load_sprites(15, 15)
+
+        self.door_sprites = {
+            5: self.load_and_scale_door_sprite(os.path.join(PROJECT_ROOT, "assets", "sprites", "Platforms", "top_right_door.jpg")),
+            6: self.load_and_scale_door_sprite(os.path.join(PROJECT_ROOT, "assets", "sprites", "Platforms", "bottom_right_door.jpg")),
+            7: self.load_and_scale_door_sprite(os.path.join(PROJECT_ROOT, "assets", "sprites", "Platforms", "bottom_left_door.jpg")),
+            8: self.load_and_scale_door_sprite(os.path.join(PROJECT_ROOT, "assets", "sprites", "Platforms", "top_left_door.jpg")),
+        }
+
 
     def load_level(self):
         # Load the level data from the CSV file
@@ -47,7 +58,8 @@ class LevelGeneration:
     def generate_level(self, screen, camera, player, show_debug_rects=False):
         # Clear the platform list at the start of each frame
         self.platforms.clear()
-
+        
+        
         # Iterate through the level data and place the correct platform sprite based on the number
 
         for y, row in enumerate(self.level_data):
@@ -58,7 +70,7 @@ class LevelGeneration:
                 
         for y, row in enumerate(self.level_data):
             for x, cell in enumerate(row):
-                if 1 <= cell <= 30:  # Platform cells
+                if 1 <= cell <= 30 and not (5 <= cell <= 8):  # Platform cells
                     # Get the corresponding sprite based on the cell value
                     sprite_data = self.get_sprite_for_platform(cell)
 
@@ -81,8 +93,25 @@ class LevelGeneration:
                         if show_debug_rects:
                             pygame.draw.rect(screen, (255, 0, 0), camera.apply(platform_rect), 2)  # Red color, 2px border
 
+                elif 5 <= cell <= 8: #Door cell
+                    if cell in self.door_sprites:
+                        sprite = self.door_sprites[cell]
+                        door_rect = pygame.Rect(x * self.tile_size, y * self.tile_size, sprite.get_width(), sprite.get_height())
+                        platform_rect_camera = camera.apply(door_rect)
+                        screen.blit(sprite, platform_rect_camera)
+
+                        self.door_positions.append((door_rect, cell))
+
+
         # Check for collision with the player
         self.Check_Collision(player)
+
+
+    def load_and_scale_door_sprite(self, sprite_path):
+        sprite = pygame.image.load(sprite_path)
+        scaled_sprite = pygame.transform.scale(sprite, (self.tile_size, self.tile_size))
+        return scaled_sprite
+    
 
     def get_sprite_for_platform(self, cell):
         """
@@ -137,55 +166,13 @@ class LevelGeneration:
         else:
             player.can_move_left = True  # Allow left movement if not colliding with the wall
 
+        self.check_door_collision(player)
 
-    # def Check_Collision(self, player):
-    #     # Variable to track if the player is standing on any platform
-    #     player_on_platform = False
-    #     collided_platform_rect = None
-    #     BUFFER = 10  # Small buffer for collision check
-    #     OFFSET = 10  # Offset to prevent player from falling off the platform
+    def check_door_collision(self, player):
+        
 
-    #     for platform_rect in self.platforms:
-    #         # Check if the player is falling (velocity > 0) and is close enough to the platform's top to land
-    #         if player.velocity_y > 0:  # Ensure only downward movement triggers landing logic
-    #             if (
-    #                 player.rect.bottom + player.velocity_y >= platform_rect.top - BUFFER and
-    #                 player.rect.bottom <= platform_rect.bottom - BUFFER and
-    #                 platform_rect.left < player.rect.right and
-    #                 player.rect.left < platform_rect.right
-    #             ):
-                    
-    #                 #print(f"Landing detected at Platform Top: {platform_rect.top}")
-
-    #                 # Player has landed on the platform
-    #                 player.rect.bottom = platform_rect.top  # Snap player's bottom to the platform's top
-    #                 player.velocity_y = 0  # Stop vertical movement
-    #                 player.is_jumping = False  # Player is not jumping
-    #                 player_on_platform = True  # Mark the player as on a platform
-    #                 player.is_on_platform = True  # Mark the player as on a platform
-    #                 collided_platform_rect = platform_rect
-    #                 break  # Exit loop once a collision is found
-
-    #     # Update `is_on_platform` based on collision checks
-    #     if player_on_platform:
-    #         player.is_on_platform = True
-    #         if player.rect.bottom != collided_platform_rect.top + OFFSET:  # Only adjust if not already on the platform
-    #             player.rect.bottom = collided_platform_rect.top + OFFSET  # Ensure player stays on the platform
-    #             player.velocity_y = 0  # Stop vertical movement
-    #             player.is_jumping = False
-    #     else:
-    #         # Check if the player is no longer supported by any platform
-    #         is_still_supported = any(
-    #             platform_rect.colliderect(player.rect.move(0, BUFFER))
-    #             for platform_rect in self.platforms
-    #         )
-
-    #         print(f"Player is_still_supported: {is_still_supported} and is_jumping: {player.is_jumping}")
-
-    #         if not is_still_supported:
-    #             player.is_jumping = True  # Start falling when not supported
-    #             player.is_on_platform = False  # Player is no longer on a platform
-    #             #print("Player starts falling.")
-    #         else: 
-    #             #print("Player remains on the platform.")
-    #             pass
+        for door_rect, cell in self.door_positions:
+            if player.rect.colliderect(door_rect):
+                print(f"Player collided with door: {cell}")
+                player.increase_level()
+                break

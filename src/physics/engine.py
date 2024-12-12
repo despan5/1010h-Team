@@ -73,7 +73,6 @@ class Engine:
         high_score_screen = HighScore(self.DISPLAYSURF)
         player_id = "player1"
 
-        current_level = 1
         P1 = Player(self.SCREEN_HEIGHT)
         E1 = Enemy()
         camera = Camera(P1, self.SCREEN_WIDTH)
@@ -81,7 +80,6 @@ class Engine:
     
         platforms = []
         Engine.generate_platforms(platforms, self.LEVEL_LENGTH)
-        door = Door(self.LEVEL_LENGTH - 200, self.SCREEN_HEIGHT - 450)  # Place door near the end of the level
 
 
          # Main game loop
@@ -122,10 +120,12 @@ class Engine:
                             pygame.quit()
                             sys.exit()
 
+                #Update level
+                current_level = P1.current_level
 
                 lvl_sheet = os.path.join(PROJECT_ROOT, 'assets', 'sprites', 'Platforms', 'generic-grassdirt-tileset', 'lavatiles.png')
 
-                level_data = LevelGeneration(os.path.join(PROJECT_ROOT, 'assets', 'level_files', 'l5.csv'), 16, lvl_sheet)
+                level_data = LevelGeneration(os.path.join(PROJECT_ROOT, 'assets', 'level_files', f'l{current_level}.csv'), 16, lvl_sheet)
                 level_data.load_level()
 
                 # Get rows and columns for the aspect ratio calculation
@@ -142,21 +142,13 @@ class Engine:
 
                 # Re-adjust the width to match the height scaling, so the aspect ratio is preserved
                 self.level_width = int(self.tile_size * cols)
-                level_gen = LevelGeneration(os.path.join(PROJECT_ROOT, 'assets', 'level_files', 'l5.csv'), self.tile_size, lvl_sheet)
+                level_gen = LevelGeneration(os.path.join(PROJECT_ROOT, 'assets', 'level_files', f'l{current_level}.csv'), self.tile_size, lvl_sheet)
                 level_gen.load_level()
 
                 # Update player and camera
                 P1.Update(level_gen, E1, camera, self.SCREEN_HEIGHT)
                 camera.update()
                 cherry.update(P1, P1.hp)
-
-                # Check if player reaches the door to go to the next level
-                if door.Check_Collision(P1):
-                    current_level += 1
-                    P1.rect.center = (160, self.SCREEN_HEIGHT - 300)  # Reset player position
-                    platforms = []
-                    Engine.generate_platforms(platforms, self.LEVEL_LENGTH)  # Generate new random platforms
-                    door = Door(self.LEVEL_LENGTH - 200, self.SCREEN_HEIGHT - 450)  # Place door at the end of the new level
 
                 # Background scrolling logic
                 self.DISPLAYSURF.blit(self.bg, (camera.offset_x % self.SCREEN_WIDTH, 0))
@@ -171,8 +163,7 @@ class Engine:
 
                 P1.hp.Draw(self.DISPLAYSURF, self.SCREEN_HEIGHT, self.SCREEN_WIDTH)
                 
-                door.Draw(self.DISPLAYSURF, camera)
-
+                
                 # Check if player is dead
                 if P1.hp.health_count <= 0:
                     # Save the score at the end of the game

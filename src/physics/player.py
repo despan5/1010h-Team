@@ -24,6 +24,7 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect = self.rect.inflate(-37.5, -10)  # Reduce width by 37.5 pixels and height by 25 pixels
         self.rect.center = (400, SCREEN_HEIGHT - 500)
+        self.current_level = 1
         
 
         # variables for player movement and actions
@@ -42,6 +43,7 @@ class Player(pygame.sprite.Sprite):
         self.animation_delay = 10
         self.animation_counter = 0
         self.bite_animation_playing = False  # to track bite animation
+        self.screen_height = SCREEN_HEIGHT
 
         # health
         self.hp = Health()
@@ -194,3 +196,6 @@ class Player(pygame.sprite.Sprite):
             self.score = 0
         return self.score
 
+    def increase_level(self):
+        self.current_level += 1
+        self.rect.center = (160, self.screen_height - 300)
