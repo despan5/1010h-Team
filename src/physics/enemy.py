@@ -63,9 +63,12 @@ class Enemy(pygame.sprite.Sprite):
     def Check_Collision(self, player, screen_height):
         """Handle collision with the player."""
         if self.rect.colliderect(player.rect):
-            # Reset player position upon collision with the enemy
-            player.rect.center = (160, screen_height - 300)
-            player.hp.Take_Damage()  # Assuming player has an hp attribute
+            if player.bite_animation_playing == True:
+                player.increase_score(100)
+            else:
+                # Reset player position upon collision with the enemy
+                player.rect.center = (160, screen_height - 300)
+                player.hp.Take_Damage()  # Assuming player has an hp attribute
 
     def Draw(self, surface, camera):
         """Draw the enemy sprite."""
