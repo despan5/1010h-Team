@@ -41,6 +41,7 @@ class Engine:
         self.LEVEL_LENGTH = 5000
         self.font = pygame.font.Font(None, 36)  # Default font with size 36
 
+
     # Platform generation
     @staticmethod
     def generate_platforms(platforms, level_length):
@@ -67,11 +68,11 @@ class Engine:
         platforms = []
         Engine.generate_platforms(platforms, self.LEVEL_LENGTH)
         door = Door(self.LEVEL_LENGTH - 200, self.SCREEN_HEIGHT - 450)
-        enemies = [
+        enemies = pygame.sprite.Group (
             Enemy(x=980, y=785, movement_range=160, platforms=platforms, screen_height=self.SCREEN_HEIGHT),
             Enemy(x=1840, y=330, movement_range=150, platforms=platforms, screen_height=self.SCREEN_HEIGHT),
             Enemy(x=2935, y=755, movement_range=150, platforms=platforms, screen_height=self.SCREEN_HEIGHT),
-        ]
+        )
         cherry = Consumable(400, 650)
         camera = Camera(P1, self.SCREEN_WIDTH)
 
@@ -105,8 +106,8 @@ class Engine:
 
             elif game_state.is_current('GAME_RUNNING'):
                 for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
-                        game_state.set_state('QUIT')
+                    if event.type == pygame.KEYDOWN and event.key == pygame.K_p:
+                        game_state.set_state('PAUSE')
                     elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                         pygame.mixer.music.stop()
                         pygame.quit()
@@ -128,6 +129,7 @@ class Engine:
                 P1.Update(level_gen, enemies, camera, self.SCREEN_HEIGHT)
                 for enemy in enemies:
                     enemy.update()
+                    enemy.Check_Collision(P1, self.SCREEN_HEIGHT)
                 camera.update()
                 cherry.update(P1, P1.hp)
 
@@ -158,6 +160,20 @@ class Engine:
                 # Display score
                 score_text = self.font.render(f"Score: {P1.get_score()}", True, (255, 255, 255))
                 self.DISPLAYSURF.blit(score_text, (50, 120))
+
+                if game_state.is_current('PAUSE'):
+                    # Create the text surface
+                    pause_text = self.font.render('PAUSED', True, (255, 255, 255))
+
+                    # Get the rectangle of the text surface
+                    pause_text_rect = pause_text.get_rect()
+
+                    # Center the rectangle on the screen
+                    pause_text_rect.center = (self.SCREEN_WIDTH // 2, self.SCREEN_HEIGHT // 2)
+
+                    # Blit the text surface onto the display surface
+                    self.DISPLAYSURF.blit(pause_text, pause_text_rect)
+
                 pygame.display.flip()
 
             elif game_state.is_current('DEATH_SCREEN'):
@@ -172,6 +188,18 @@ class Engine:
                         game_state.set_state('GAME_RUNNING')
                     elif result == 'QUIT':
                         game_state.set_state('QUIT')
+
+            elif game_state.is_current('PAUSE'):
+                pause_text = self.font.render('PAUSED', True, (255, 255, 255))
+                self.DISPLAYSURF.blit(pause_text, (1000, 1000))
+
+                for event in pygame.event.get():
+                    if event.type == pygame.KEYDOWN and event.key == pygame.K_p:
+                        game_state.set_state('GAME_RUNNING')
+                    elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                        pygame.mixer.music.stop()
+                        pygame.quit()
+                        sys.exit() 
 
             MAIN_CLOCK.tick(TPS)
 

@@ -7,7 +7,8 @@ class GameState():
             'GAME_RUNNING': 2,
             'DEATH_SCREEN': 3,
             'HIGH_SCORE': 4,
-            'QUIT': 5
+            'PAUSE': 5,
+            'QUIT': 6
         }
 
         self.music_files = {
