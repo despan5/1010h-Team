@@ -63,80 +63,67 @@ class Player(pygame.sprite.Sprite):
             frames.append(frame)
         return frames
 
-    def Update(self, lvlgen, enemy, camera, SCREEN_HEIGHT):
+    def Update(self, lvlgen, enemies, camera, SCREEN_HEIGHT):
         pressed_keys = pygame.key.get_pressed()
 
-        
-
-        # reset movement and bite status at the start of update
+        # Reset movement and bite status at the start of the update
         self.is_moving = False
         self.bite_animation_playing = False
 
-        # movement logic for left (even while jumping)
+        # Movement logic for left (even while jumping)
         if pressed_keys[pygame.K_LEFT] and self.can_move_left:
             self.rect.move_ip(-self.movement_speed, 0)
             self.is_moving = True
             self.is_facing_right = False
-        # movement logic for right (even while jumping)
+        # Movement logic for right (even while jumping)
         elif pressed_keys[pygame.K_RIGHT]:
             self.rect.move_ip(self.movement_speed, 0)
             self.is_moving = True
             if not self.is_facing_right:  # Only flip if the sprite is facing left
                 self.is_facing_right = True
 
-        # jumping logic -- space key (trigger jump only when on the ground)
+        # Jumping logic -- space key (trigger jump only when on the ground)
         if pressed_keys[pygame.K_SPACE]:
             self.Jump()
+
         # Store the current sprite state for comparison later
-        
         previous_sprites = self.current_sprites
 
-        # determine which animation to use
-        if self.is_jumping:  # if the player is in the air, always use jump animation
+        # Determine which animation to use
+        if self.is_jumping:  # If the player is in the air, always use jump animation
             self.current_sprites = self.jump_sprites
-
-        elif pressed_keys[pygame.K_UP]:  # bite attack logic
-            self.current_sprites = self.bite_sprites  # use bite animation
+        elif pressed_keys[pygame.K_UP]:  # Bite attack logic
+            self.current_sprites = self.bite_sprites  # Use bite animation
             self.bite_animation_playing = True
-
-        # if no jumping and player is moving, use move animation
-        elif self.is_moving:
+        elif self.is_moving:  # If no jumping and player is moving, use move animation
             self.current_sprites = self.move_sprites
-
-        # if no movement or jumping, play idle animation
-        else:
-            self.current_sprites = self.idle_sprites  # use idle animation
+        else:  # If no movement or jumping, play idle animation
+            self.current_sprites = self.idle_sprites
 
         # If the sprite list changed, reset the frame index
         if previous_sprites != self.current_sprites:
             self.current_frame = 0
 
-        #print(f"Before Collision Check - Velocity Y: {self.velocity_y}, Is Jumping: {self.is_jumping}, Is On Platform: {self.is_on_platform}")
-
-        # apply gravity and handle the jumping mechanism
+        # Apply gravity and handle the jumping mechanism
         lvlgen.Check_Collision(self)
-        
         self.Apply_Gravity(SCREEN_HEIGHT)
 
-        # handle sprite flipping based on direction
+        # Handle sprite flipping based on direction
         self.image = self.current_sprites[self.current_frame]
         if not self.is_facing_right:
             self.image = pygame.transform.flip(self.image, True, False)
 
-        # handle animation frame changes
+        # Handle animation frame changes
         self.animation_counter += 1
         if self.animation_counter >= self.animation_delay:
             self.current_frame = (self.current_frame + 1) % len(self.current_sprites)
             self.animation_counter = 0
 
-        # check collisions with platforms and enemies
-    
-       
-
-        #print(f"After Collision Check - Velocity Y: {self.velocity_y}, Is Jumping: {self.is_jumping}, Is On Platform: {self.is_on_platform}")
-
-        if enemy:
+        # Check collisions with platforms and enemies
+        for enemy in enemies:  # Iterate through all enemies
             enemy.Check_Collision(self, SCREEN_HEIGHT)
+
+        # Update the camera
         if camera:
             camera.update()
 
