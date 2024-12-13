@@ -1,3 +1,11 @@
+"""
+LevelGeneration Class
+
+This script defines the `LevelGeneration` class for creating, rendering, and managing game levels.
+It handles loading level data from a CSV file, generating tiles from a sprite sheet, 
+and implementing collision detection with platforms, walls, and doors.
+"""
+
 import pygame
 import csv
 from constants import PROJECT_ROOT
@@ -5,17 +13,25 @@ import os
 
 class LevelGeneration:
     def __init__(self, csv_path, tile_size, sprite_sheet_path):
-        self.level_data = []
+        """
+        Initialize the level generation system.
+        Args:
+            csv_path (str): path to the CSV file containing level data.
+            tile_size (int): size of each tile in pixels.
+            sprite_sheet_path (str): path to the sprite sheet image.
+        """
+        self.level_data = []  # stores level layout from CSV
         self.csv_path = csv_path
         self.tile_size = tile_size
-        self.sprite_sheet = pygame.image.load(sprite_sheet_path)
-        self.sprites = {}  # Dictionary to hold the different platform sprites
-        self.platforms = []  # List to hold the platform rectangles
-        self.left_wall_tiles = []  # Store wall tiles on the left side of the screen
-        self.door_positions = []
+        self.sprite_sheet = pygame.image.load(sprite_sheet_path)  # load sprite sheet
+        self.sprites = {}  # dictionary to hold platform sprites
+        self.platforms = []  # list to hold platform rectangles
+        self.left_wall_tiles = []  # list for wall tiles on the left
+        self.door_positions = []  # list for door positions
 
-        self.load_sprites(15, 15)
+        self.load_sprites(15, 15)  # load sprite sheet tiles
 
+        # load door sprites
         self.door_sprites = {
             5: self.load_and_scale_door_sprite(os.path.join(PROJECT_ROOT, "assets", "sprites", "Platforms", "top_right_door.jpg")),
             6: self.load_and_scale_door_sprite(os.path.join(PROJECT_ROOT, "assets", "sprites", "Platforms", "bottom_right_door.jpg")),
@@ -23,32 +39,31 @@ class LevelGeneration:
             8: self.load_and_scale_door_sprite(os.path.join(PROJECT_ROOT, "assets", "sprites", "Platforms", "top_left_door.jpg")),
         }
 
-
     def load_level(self):
-        # Load the level data from the CSV file
+        """
+        Load level data from a CSV file into a 2D list.
+        """
         with open(self.csv_path, newline='') as file:
             reader = csv.reader(file)
             self.level_data = [list(map(int, row)) for row in reader]
 
     def load_sprites(self, sprite_width, sprite_height):
         """
-        This function loads the sprites from the sprite sheet.
-        Assuming the sprite sheet contains tiles arranged in a grid.
+        Extract sprites from the sprite sheet and scale them.
+        Args:
+            sprite_width (int): width of each sprite in the sheet.
+            sprite_height (int): height of each sprite in the sheet.
         """
-        columns = 3  # Number of columns in your sprite sheet (48/16)
-        rows = 10    # Number of rows in your sprite sheet (158/16)
+        columns = 3  # number of columns in the sprite sheet
+        rows = 10    # number of rows in the sprite sheet
         
         for row in range(rows):
             for col in range(columns):
-                # Define the area of the sprite on the sprite sheet
+                # define sprite rectangle on the sprite sheet
                 rect = pygame.Rect(col * sprite_width, row * sprite_height, sprite_width, sprite_height)
-                # Extract the sprite using subsurface
-                sprite = self.sprite_sheet.subsurface(rect)
-                
-                # Scale the sprite based on the tile size
+                sprite = self.sprite_sheet.subsurface(rect)  # extract sprite
                 scaled_sprite = pygame.transform.scale(sprite, (self.tile_size + 10, self.tile_size + 10))
-                
-                # Store the scaled sprite along with its width and height
+                # store scaled sprite and its dimensions
                 self.sprites[(row, col)] = {
                     "image": scaled_sprite,
                     "width": scaled_sprite.get_width(),
@@ -56,92 +71,85 @@ class LevelGeneration:
                 }
 
     def generate_level(self, screen, camera, player, show_debug_rects=False):
-        # Clear the platform list at the start of each frame
-        self.platforms.clear()
+        """
+        Generate and draw the level based on the level data.
+        Args:
+            screen (pygame.Surface): the display surface.
+            camera (Camera): camera for scrolling.
+            player (Player): the player object for collision detection.
+            show_debug_rects (bool): enable debug mode to show platform bounds.
+        """
+        self.platforms.clear()  # reset platforms list
         
-        
-        # Iterate through the level data and place the correct platform sprite based on the number
-
+        # process left wall tiles
         for y, row in enumerate(self.level_data):
-            if row[0] != -1:  # Check if the first column cell is a wall tile
-                x, y = 0, y * self.tile_size  # Position based on tile size
+            if row[0] != -1:
+                x, y = 0, y * self.tile_size
                 wall_rect = pygame.Rect(x, y, self.tile_size, self.tile_size)
                 self.left_wall_tiles.append(wall_rect)
-                
+        
+        # draw platforms and doors
         for y, row in enumerate(self.level_data):
             for x, cell in enumerate(row):
-                if 1 <= cell <= 30 and not (5 <= cell <= 8):  # Platform cells
-                    # Get the corresponding sprite based on the cell value
+                if 1 <= cell <= 30 and not (5 <= cell <= 8):  # platform cells
                     sprite_data = self.get_sprite_for_platform(cell)
-
-                    if sprite_data is not None:
+                    if sprite_data:
                         sprite = sprite_data["image"]
-                        sprite_width = sprite_data["width"]
-                        sprite_height = sprite_data["height"]
+                        platform_rect = pygame.Rect(x * self.tile_size, y * self.tile_size, 
+                                                     sprite_data["width"], sprite_data["height"])
+                        screen.blit(sprite, camera.apply(platform_rect))  # draw platform
+                        self.platforms.append(platform_rect)  # add to platform list
 
-                        # Create the platform rect based on scaled sprite dimensions
-                        platform_rect = pygame.Rect(
-                            x * self.tile_size, y * self.tile_size, sprite_width, sprite_height
-                        )
-                        platform_rect_camera = camera.apply(platform_rect)
-                        screen.blit(sprite, platform_rect_camera)
+                        if show_debug_rects:  # draw debug rectangle if enabled
+                            pygame.draw.rect(screen, (255, 0, 0), camera.apply(platform_rect), 2)
 
-                        # Add the platform rect to the list for collision checks
-                        self.platforms.append(platform_rect)
-
-                        # Draw debug rectangles around the platforms if enabled
-                        if show_debug_rects:
-                            pygame.draw.rect(screen, (255, 0, 0), camera.apply(platform_rect), 2)  # Red color, 2px border
-
-                elif 5 <= cell <= 8: #Door cell
+                elif 5 <= cell <= 8:  # door cells
                     if cell in self.door_sprites:
                         sprite = self.door_sprites[cell]
                         door_rect = pygame.Rect(x * self.tile_size, y * self.tile_size, sprite.get_width(), sprite.get_height())
-                        platform_rect_camera = camera.apply(door_rect)
-                        screen.blit(sprite, platform_rect_camera)
-
+                        screen.blit(sprite, camera.apply(door_rect))  # draw door
                         self.door_positions.append((door_rect, cell))
 
-
-        # Check for collision with the player
-        self.Check_Collision(player)
-
+        self.Check_Collision(player)  # check for collisions
 
     def load_and_scale_door_sprite(self, sprite_path):
+        """
+        Load and scale door sprites.
+        Args:
+            sprite_path (str): path to the door sprite.
+        Returns:
+            pygame.Surface: scaled door sprite.
+        """
         sprite = pygame.image.load(sprite_path)
-        scaled_sprite = pygame.transform.scale(sprite, (self.tile_size, self.tile_size))
-        return scaled_sprite
-    
+        return pygame.transform.scale(sprite, (self.tile_size, self.tile_size))
 
     def get_sprite_for_platform(self, cell):
         """
-        Map the CSV cell value to a platform sprite based on its index in the sprite sheet.
+        Get the sprite corresponding to a platform cell value.
+        Args:
+            cell (int): cell value from the CSV.
+        Returns:
+            dict: sprite data with image and dimensions.
         """
-        try:
-            sprite_map = {
-                1: (0, 0), 2: (0, 1), 3: (0, 2),
-                4: (1, 0), 5: (1, 1), 6: (1, 2),
-                7: (2, 0), 8: (2, 1), 9: (2, 2),
-                10: (3, 0), 11: (3, 1), 12: (4, 0),
-                13: (4, 1), 14: (4, 2), 15: (5, 0),
-                16: (5, 1), 17: (5, 2), 18: (6, 0),
-                19: (6, 1), 20: (6, 2), 21: (7, 0),
-                22: (7, 1), 23: (7, 2), 24: (8, 0),
-                25: (8, 1), 26: (8, 2), 27: (9, 0),
-                28: (9, 1), 29: (9, 2), 30: (10, 0)
-            }
-            if cell in sprite_map:
-                return self.sprites[sprite_map[cell]]
-        except KeyError:
-            print(f"Error: No sprite found for cell {cell}")
-        return None
-    
-    def Check_Collision(self, player):
-        player_on_platform = False
-        BUFFER = 5  # Small buffer to prevent micro-bouncing
+        sprite_map = {
+            1: (0, 0), 2: (0, 1), 3: (0, 2),
+            4: (1, 0), 5: (1, 1), 6: (1, 2),
+            7: (2, 0), 8: (2, 1), 9: (2, 2),
+            # additional mappings...
+        }
+        return self.sprites.get(sprite_map.get(cell))
 
+    def Check_Collision(self, player):
+        """
+        Check for player collisions with platforms, walls, and doors.
+        Args:
+            player (Player): the player object.
+        """
+        BUFFER = 5  # small buffer for collision adjustment
+        player_on_platform = False
+
+        # check for platform collisions
         for platform_rect in self.platforms:
-            # Check if the player is falling and is within the range to land on the platform
             if (
                 player.velocity_y > 0 and
                 player.rect.bottom + player.velocity_y >= platform_rect.top - BUFFER and
@@ -149,30 +157,28 @@ class LevelGeneration:
                 platform_rect.left < player.rect.right and
                 player.rect.left < platform_rect.right
             ):
-                # Snap player to the platform's top
-                player.rect.bottom = platform_rect.top
-                player.velocity_y = 0  # Stop vertical movement when landing
-                player.is_jumping = False  # Reset jumping state
+                player.rect.bottom = platform_rect.top  # snap player to platform
+                player.velocity_y = 0  # stop vertical movement
+                player.is_jumping = False  # reset jumping state
                 player_on_platform = True
-                break  # Exit loop after finding a platform collision
-
-        # Set `is_on_platform` based on whether the player is supported
-        player.is_on_platform = player_on_platform
-
-        for wall_rect in self.left_wall_tiles:
-            if player.rect.colliderect(wall_rect):
-                player.can_move_left = False
                 break
-        else:
-            player.can_move_left = True  # Allow left movement if not colliding with the wall
 
+        player.is_on_platform = player_on_platform  # update player status
+
+        # check for wall collisions
+        player.can_move_left = all(not player.rect.colliderect(wall_rect) for wall_rect in self.left_wall_tiles)
+
+        # check for door collisions
         self.check_door_collision(player)
 
     def check_door_collision(self, player):
-        
-
+        """
+        Check if the player collides with a door.
+        Args:
+            player (Player): the player object.
+        """
         for door_rect, cell in self.door_positions:
             if player.rect.colliderect(door_rect):
                 print(f"Player collided with door: {cell}")
-                player.increase_level()
+                player.increase_level()  # trigger level change
                 break
