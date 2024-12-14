@@ -25,16 +25,16 @@ class Player(pygame.sprite.Sprite):
             SCREEN_HEIGHT (int): Height of the screen to position the player initially.
         """
         super().__init__()
-        
-        self.username = None  # username of the player, loaded from the database
-        
-        # load sprite sheets for animations
+
+        self.username = None
+        # Load sprite sheets for different animations
         self.idle_sprites = self.load_sprites(os.path.join(PROJECT_ROOT, 'assets', 'sprites', 'female', 'doux', 'base', 'idle.png'), 24, 24)
         self.move_sprites = self.load_sprites(os.path.join(PROJECT_ROOT, 'assets', 'sprites', 'female', 'doux', 'base', 'move.png'), 24, 24)
         self.jump_sprites = self.load_sprites(os.path.join(PROJECT_ROOT, 'assets', 'sprites', 'female', 'doux', 'base', 'jump.png'), 24, 24)
         self.bite_sprites = self.load_sprites(os.path.join(PROJECT_ROOT, 'assets', 'sprites', 'female', 'doux', 'base', 'bite.png'), 24, 24)
 
-        # set the initial animation and position
+
+        # Set the initial states
         self.current_sprites = self.idle_sprites
         self.current_frame = 0
         self.image = self.current_sprites[self.current_frame]
@@ -42,8 +42,9 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.rect.inflate(-37.5, -10)  # shrink hitbox size for better collision detection
         self.rect.center = (400, SCREEN_HEIGHT - 500)
         self.current_level = 1
-        
-        # movement and action attributes
+
+
+        # Variables for player movement and actions
         self.is_jumping = False
         self.is_on_platform = False
         self.velocity_y = 0
@@ -55,33 +56,25 @@ class Player(pygame.sprite.Sprite):
         self.can_double_jump = False # start with double jump disabled
         self.can_move_left = True
 
-        # animation control
+        # Animation timing
         self.animation_delay = 10
         self.animation_counter = 0
-        self.bite_animation_playing = False # to track bite animation
+        self.bite_animation_playing = False  # To track bite animation
         self.screen_height = SCREEN_HEIGHT
 
-        # player state
-        self.hp = Health()  # health management
-        self.score = 0     # initialize score
+        # Health
+        self.hp = Health()
+
+        self.score = 0  # Initialize score
 
     def load_sprites(self, sprite_sheet_path, frame_width, frame_height):
-        """
-        Load sprites from a sprite sheet.
+        # Load the sprite sheet
 
-        Args:
-            sprite_sheet_path (str): Path to the sprite sheet image.
-            frame_width (int): Width of each frame in the sprite sheet.
-            frame_height (int): Height of each frame in the sprite sheet.
-
-        Returns:
-            list[pygame.Surface]: List of frames extracted from the sprite sheet.
-        """
         sprite_sheet = pygame.image.load(sprite_sheet_path)
         sheet_width, sheet_height = sprite_sheet.get_size()
-        num_frames = sheet_width // frame_width  # calculate the number of frames based on the width of the sheet
+        num_frames = sheet_width // frame_width  # Calculate the number of frames based on the width of the sheet
         frames = []
-        
+
         for i in range(num_frames):
             frame = sprite_sheet.subsurface(pygame.Rect(i * frame_width, 0, frame_width, frame_height))
             frame = pygame.transform.scale(frame, (100, 100)) #scale each frame
@@ -123,9 +116,10 @@ class Player(pygame.sprite.Sprite):
         # store the current sprite state for comparison later
         previous_sprites = self.current_sprites
 
-        # determine which animation to use
-        if pressed_keys[pygame.K_UP]:  # bite attack logic
-            self.current_sprites = self.bite_sprites  # use bite animation
+
+        # Determine which animation to use (allow biting while jumping)
+        if pressed_keys[pygame.K_SPACE]:  # Bite attack logic
+            self.current_sprites = self.bite_sprites  # Use bite animation
             self.bite_animation_playing = True
         
         elif self.is_jumping:  # if the player is in the air, always use jump animation
@@ -185,23 +179,14 @@ class Player(pygame.sprite.Sprite):
             self.rect.y += self.velocity_y
         else:
             self.is_jumping = False
-            self.can_double_jump = False
+            self.can_double_jump = False  # Reset double jump on landing
 
-    def Take_Damage(self):
-        """
-        Reduce the player's health.
-        """
+    def Take_Damage(self):  # Reduce player health
         self.hp.Take_Damage()
 
     def Draw(self, surface, camera, show_debug_rects=False):
-        """
-        Draw the player on the screen.
+        # If camera is not passed, or it's a lambda function for cutscenes, skip the camera logic
 
-        Args:
-            surface (pygame.Surface): The surface to draw on.
-            camera (Camera): The camera object for scrolling.
-            show_debug_rects (bool): If True, draw the player's collision box for debugging.
-        """
         if hasattr(camera, 'apply'):
             surface.blit(self.image, camera.apply(self.rect))
         else:

@@ -18,7 +18,8 @@ class GameState():
             'DEATH_SCREEN': 3,
             'HIGH_SCORE': 4,
             'PAUSE': 5,
-            'QUIT': 6
+            'YOU_WON': 6,
+            'QUIT': 7
         }
 
         # music files corresponding to each state
