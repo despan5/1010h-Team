@@ -186,3 +186,4 @@ class Player(pygame.sprite.Sprite):
     def increase_level(self):
         self.current_level += 1
         self.rect.center = (160, self.screen_height - 300)
+        print(f"Level {self.current_level}")
