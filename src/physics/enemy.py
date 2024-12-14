@@ -1,3 +1,10 @@
+"""
+Enemy Class
+
+This script defines the `Enemy` class, representing hostile entities that move 
+within a specified range and interact with the player.
+"""
+
 import pygame
 import os
 from constants import PROJECT_ROOT
@@ -31,7 +38,12 @@ class Enemy(pygame.sprite.Sprite):
         # Movement variables
         self.velocity_x = self.speed
 
-        # References to platforms and screen height
+        # movement properties
+        self.start_x = x  # initial position to calculate movement bounds
+        self.movement_range = movement_range  # max range enemy can move
+        self.is_facing_right = True  # direction of the enemy's facing
+
+        # references to platforms and screen height
         self.platforms = platforms
         self.screen_height = screen_height
 
@@ -49,33 +61,37 @@ class Enemy(pygame.sprite.Sprite):
         sheet_width, sheet_height = sprite_sheet.get_size()
         num_frames = sheet_width // frame_width
         frames = []
-
         for i in range(num_frames):
+            # extract a frame and scale it for better visibility
             frame = sprite_sheet.subsurface(pygame.Rect(i * frame_width, 0, frame_width, frame_height))
             frame = pygame.transform.scale(frame, (100, 100))  # Resize the sprite frame
             frames.append(frame)
         return frames
 
     def update(self):
-        """Update the enemy's position and animation."""
-        # Horizontal movement logic
+        """
+        Update the enemy's position and animation.
+        Handles horizontal movement and frame animation.
+        """
+        # move horizontally within the defined range
         self.rect.x += self.velocity_x
         if self.rect.x <= self.start_x - self.movement_range or self.rect.x >= self.start_x + self.movement_range:
-            self.velocity_x *= -1  # Reverse direction
-            self.is_facing_right = not self.is_facing_right  # Flip the direction
+            self.velocity_x *= -1  # reverse direction
+            self.is_facing_right = not self.is_facing_right  # update facing direction
 
-        # Update the animation frame
+        # update the animation frame
         self.animation_counter += 1
         if self.animation_counter >= self.animation_delay:
-            self.current_frame = (self.current_frame + 1) % len(self.walking_sprites)
+            self.current_frame = (self.current_frame + 1) % len(self.walking_sprites)  # loop through frames
             self.animation_counter = 0
 
-        # Update the image and flip it if necessary
+        # update the displayed image and flip it if the direction changes
         self.image = self.walking_sprites[self.current_frame]
         if not self.is_facing_right:
             self.image = pygame.transform.flip(self.image, True, False)
 
     def Check_Collision(self, player, screen_height):
+      
         """Handle collision with the player."""
         if self.rect.colliderect(player.rect):  # Check if player collides with enemy
             if player.bite_animation_playing:  # If player is biting

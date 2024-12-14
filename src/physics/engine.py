@@ -1,3 +1,10 @@
+"""
+Engine Class
+
+The Engine class manages the main game loop, initializes resources, 
+handles different game states, and updates/render components.
+"""
+
 import pygame
 import sys
 import random
@@ -17,16 +24,21 @@ from control.health import Health
 from control.camera import Camera
 from physics.Egg import Egg
 
-
 class Engine:
+    """
+    Main game engine class that manages game states, rendering, and interactions.
+    """
 
     def __init__(self):
+        """
+        Initialize the game engine, including screen, assets, and basic settings.
+        """
         pygame.init()
 
-        # Initialize Music
+        # initialize music and audio
         pygame.mixer.init()
 
-        # Screen information
+        # screen and display information
         self.info = pygame.display.Info()
         self.SCREEN_WIDTH = self.info.current_w
         self.SCREEN_HEIGHT = self.info.current_h
@@ -84,14 +96,20 @@ class Engine:
 
     @staticmethod
     def generate_platforms(platforms, level_length):
+        """
+        Generate random platforms throughout the level.
+        Args:
+            platforms (list): List to store generated platforms.
+            level_length (int): Total length of the level for platform placement.
+        """
         x = 400
         while x < level_length:
-            y = random.randint(400, 700)
-            width = random.randint(100, 300)
+            y = random.randint(400, 700)  # randomize vertical position
+            width = random.randint(100, 300)  # randomize platform width
             height = 20
             platform = Obstacles(x, y, width, height)
             platforms.append(platform)
-            x += random.randint(300, 600)
+            x += random.randint(300, 600)  # ensure consistent spacing
 
     def load_enemies_for_level(self, current_level, platforms):
         enemy_configs = self.enemy_configs.get(current_level, [])
@@ -187,11 +205,13 @@ class Engine:
         start_screen = StartScreen(self.DISPLAYSURF)
         high_score_screen = HighScore(self.DISPLAYSURF)
 
+
         # Player and game objects
         P1 = Player(self.SCREEN_HEIGHT)
         platforms = []
         Engine.generate_platforms(platforms, self.LEVEL_LENGTH)
         door = Door(self.LEVEL_LENGTH - 200, self.SCREEN_HEIGHT - 450)
+
 
         current_level = P1.current_level
         enemies = self.load_enemies_for_level(current_level, platforms)
@@ -199,7 +219,9 @@ class Engine:
         eggs = self.load_eggs_for_level(current_level)
         camera = Camera(P1, self.SCREEN_WIDTH)
 
+        # Main game loop
         while game_state.current != game_state.states['QUIT']:
+            # START MENU
             if game_state.is_current('START_MENU'):
                 start_screen.draw()
                 pygame.display.flip()
@@ -244,7 +266,6 @@ class Engine:
                     os.path.join(PROJECT_ROOT, 'assets', 'level_files', f'l{current_level}.csv'), 16, lvl_sheet
                 )
                 level_data.load_level()
-
                 rows = len(level_data.level_data)
                 scale_factor = self.SCREEN_HEIGHT / rows
                 self.tile_size = int(scale_factor)
@@ -284,10 +305,12 @@ class Engine:
                     game_state.set_state('QUIT')
                     return
 
+
                 # Draw objects
                 self.DISPLAYSURF.blit(self.bg, (camera.offset_x % self.SCREEN_WIDTH, 0))
                 if camera.offset_x % self.SCREEN_WIDTH != 0:
                     self.DISPLAYSURF.blit(self.bg, (camera.offset_x % self.SCREEN_WIDTH - self.SCREEN_WIDTH, 0))
+
                 P1.Draw(self.DISPLAYSURF, camera)
                 for enemy in enemies:
                     enemy.Draw(self.DISPLAYSURF, camera)
@@ -310,6 +333,7 @@ class Engine:
                 self.DISPLAYSURF.blit(score_text, (50, 120))
                 self.DISPLAYSURF.blit(level_text, (200, 120))
                 pygame.display.flip()
+
 
             elif game_state.is_current('DEATH_SCREEN'):
                 death_screen.draw()
@@ -337,4 +361,17 @@ class Engine:
                         sys.exit()
             MAIN_CLOCK.tick(TPS)
 
+            elif game_state.is_current('PAUSE'):
+                pause_text = self.font.render('PAUSED', True, (255, 255, 255))
+                self.DISPLAYSURF.blit(pause_text, (1000, 1000))
+                for event in pygame.event.get():
+                    if event.type == pygame.KEYDOWN and event.key == pygame.K_p:
+                        game_state.set_state('GAME_RUNNING')
+                    elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                        pygame.mixer.music.stop()
+                        pygame.quit()
+                        sys.exit() 
+            MAIN_CLOCK.tick(TPS)
+
+        # quit the game
         pygame.quit()
