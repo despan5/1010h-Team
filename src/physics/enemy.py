@@ -3,7 +3,7 @@ import os
 from constants import PROJECT_ROOT
 
 class Enemy(pygame.sprite.Sprite):
-    def __init__(self, x, y, movement_range, platforms, screen_height):
+    def __init__(self, x, y, movement_range, platforms, screen_height, speed=1):
         super().__init__()
         sprite_sheet_path = os.path.join(PROJECT_ROOT, 'assets', 'sprites', 'male', 'mort', 'ghost', 'move.png')
 
@@ -20,7 +20,7 @@ class Enemy(pygame.sprite.Sprite):
         self.rect.y = y
 
         # Movement variables
-        self.velocity_x = 2  # Horizontal speed
+        self.velocity_x = speed  # Dynamic speed based on level
         self.start_x = x
         self.movement_range = movement_range
         self.is_facing_right = True
@@ -64,8 +64,12 @@ class Enemy(pygame.sprite.Sprite):
         """Handle collision with the player."""
         if self.rect.colliderect(player.rect):
             # Reset player position upon collision with the enemy
-            player.rect.center = (160, screen_height - 300)
-            player.hp.Take_Damage()  # Assuming player has an hp attribute
+            if player.bite_animation_playing:
+                player.increase_score(100)
+                self.kill()
+            else:
+                player.rect.center = (160, screen_height - 300)
+                player.hp.Take_Damage()  # Assuming player has an hp attribute
 
     def Draw(self, surface, camera):
         """Draw the enemy sprite."""

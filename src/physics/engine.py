@@ -44,29 +44,29 @@ class Engine:
         # Enemy configurations for 5 levels
         self.enemy_configs = {
             1: [
-                {"x": 500, "y": 700, "movement_range": 100},
-                {"x": 1200, "y": 500, "movement_range": 150},
-                {"x": 2000, "y": 300, "movement_range": 200},
+                {"x": 500, "y": 700, "movement_range": 100, "speed": 1},
+                {"x": 1200, "y": 500, "movement_range": 150, "speed": 1},
+                {"x": 2000, "y": 300, "movement_range": 200, "speed": 1},
             ],
             2: [
-                {"x": 800, "y": 600, "movement_range": 120},
-                {"x": 1600, "y": 400, "movement_range": 100},
-                {"x": 2500, "y": 700, "movement_range": 180},
+                {"x": 800, "y": 600, "movement_range": 120, "speed": 1.5},
+                {"x": 1600, "y": 400, "movement_range": 100, "speed": 1.5},
+                {"x": 2500, "y": 700, "movement_range": 180, "speed": 1.5},
             ],
             3: [
-                {"x": 600, "y": 750, "movement_range": 130},
-                {"x": 1400, "y": 550, "movement_range": 140},
-                {"x": 2300, "y": 350, "movement_range": 160},
+                {"x": 600, "y": 750, "movement_range": 130, "speed": 2},
+                {"x": 1400, "y": 550, "movement_range": 140, "speed": 2},
+                {"x": 2300, "y": 350, "movement_range": 160, "speed": 2},
             ],
             4: [
-                {"x": 700, "y": 650, "movement_range": 110},
-                {"x": 1500, "y": 450, "movement_range": 200},
-                {"x": 2400, "y": 300, "movement_range": 150},
+                {"x": 700, "y": 650, "movement_range": 110, "speed": 2.5},
+                {"x": 1500, "y": 450, "movement_range": 200, "speed": 2.5},
+                {"x": 2400, "y": 300, "movement_range": 150, "speed": 2.5},
             ],
             5: [
-                {"x": 900, "y": 600, "movement_range": 120},
-                {"x": 1700, "y": 500, "movement_range": 180},
-                {"x": 2600, "y": 400, "movement_range": 200},
+                {"x": 900, "y": 600, "movement_range": 120, "speed": 3},
+                {"x": 1700, "y": 500, "movement_range": 180, "speed": 3},
+                {"x": 2600, "y": 400, "movement_range": 200, "speed": 3},
             ],
         }
 
@@ -92,6 +92,7 @@ class Engine:
                     movement_range=config["movement_range"],
                     platforms=platforms,
                     screen_height=self.SCREEN_HEIGHT,
+                    speed=config.get("speed", 1),  # Default speed if not specified
                 )
                 for config in enemy_configs
             ]
@@ -202,6 +203,9 @@ class Engine:
                 # Display score
                 score_text = self.font.render(f"Score: {P1.get_score()}", True, (255, 255, 255))
                 self.DISPLAYSURF.blit(score_text, (50, 120))
+                # display the level
+                level_text = self.font.render(f"Current Level: {current_level}", True, (255, 255, 255))
+                self.DISPLAYSURF.blit(level_text, (200, 120))  # Adjust the position as needed
                 pygame.display.flip()
 
             elif game_state.is_current('DEATH_SCREEN'):
@@ -230,3 +234,4 @@ class Engine:
             MAIN_CLOCK.tick(TPS)
 
         pygame.quit()
+
