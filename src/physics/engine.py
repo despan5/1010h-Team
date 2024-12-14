@@ -45,64 +45,51 @@ class Engine:
         # Enemy configurations for 5 levels
         self.enemy_configs = {
             1: [
-                {"x": 500, "y": 700, "movement_range": 100, "speed": 1},
-                {"x": 1200, "y": 500, "movement_range": 150, "speed": 1},
-                {"x": 2000, "y": 300, "movement_range": 200, "speed": 1},
+                {"x": 890, "y": 390, "movement_range": 125, "speed": 2},
+                {"x": 1500, "y": 220, "movement_range": 150, "speed": 4},
             ],
             2: [
-                {"x": 800, "y": 600, "movement_range": 120, "speed": 1.5},
-                {"x": 1600, "y": 400, "movement_range": 100, "speed": 1.5},
-                {"x": 2500, "y": 700, "movement_range": 180, "speed": 1.5},
+                {"x": 1600, "y": 525, "movement_range": 350, "speed": 6},
+                {"x": 1125, "y": 80, "movement_range": 175, "speed": 4},
+                {"x": 2350, "y": 220, "movement_range": 175, "speed": 6},
+                {"x": 1500, "y": 725, "movement_range": 800, "speed": 6},
             ],
             3: [
-                {"x": 600, "y": 750, "movement_range": 130, "speed": 2},
-                {"x": 1400, "y": 550, "movement_range": 140, "speed": 2},
-                {"x": 2300, "y": 350, "movement_range": 160, "speed": 2},
+                {"x": 530, "y": 440, "movement_range": 340, "speed": 5},
+                {"x": 1710, "y": 555, "movement_range": 300, "speed": 5},
+                {"x": 1600, "y": 725, "movement_range": 775, "speed": 9},
             ],
             4: [
-                {"x": 700, "y": 650, "movement_range": 110, "speed": 2.5},
-                {"x": 1500, "y": 450, "movement_range": 200, "speed": 2.5},
-                {"x": 2400, "y": 300, "movement_range": 150, "speed": 2.5},
+                {"x": 1200, "y": 580, "movement_range": 200, "speed": 5},
+                {"x": 1575, "y": 440, "movement_range": 120, "speed": 5},
+                {"x": 1990, "y": 250, "movement_range": 160, "speed": 9},
+                {"x": 1800, "y": 725, "movement_range": 800, "speed": 13},
             ],
             5: [
-                {"x": 900, "y": 600, "movement_range": 120, "speed": 3},
-                {"x": 1700, "y": 500, "movement_range": 180, "speed": 3},
-                {"x": 2600, "y": 400, "movement_range": 200, "speed": 3},
+                {"x": 1000, "y": 725, "movement_range": 500, "speed": 16},
+                {"x": 2400, "y": 725, "movement_range": 250, "speed": 12},
+                {"x": 1880, "y": 415, "movement_range": 110, "speed": 4},
+                {"x": 1150, "y": 385, "movement_range": 150, "speed": 4},
+                {"x": 770, "y": 610, "movement_range": 140, "speed": 4},
             ],
         }
 
         # Fruit configurations for 5 levels
         self.fruit_configs = {
-            1: [
-                {"x": 400, "y": 650},
-                {"x": 800, "y": 600},
-            ],
-            2: [
-                {"x": 900, "y": 500},
-                {"x": 1200, "y": 400},
-                {"x": 1500, "y": 450},
-            ],
-            3: [
-                {"x": 500, "y": 600},
-                {"x": 1000, "y": 550},
-            ],
-            4: [
-                {"x": 1100, "y": 700},
-                {"x": 1400, "y": 400},
-            ],
-            5: [
-                {"x": 600, "y": 300},
-                {"x": 1300, "y": 600},
-            ],
+            1: [{"x": 1060, "y": 140}],
+            2: [{"x": 1600, "y": 360}],
+            3: [{"x": 2500, "y": 250}],
+            4: [{"x": 1320, "y": 365}, {"x": 1750, "y": 365}],
+            5: [{"x": 970, "y": 535}, {"x": 1850, "y": 600}],
         }
 
-        # set egg spawn
+        # Egg configurations for 5 levels
         self.egg_configs = {
-            1: [{"x": 500, "y": 600}],
-            2: [{"x": 800, "y": 450}, {"x": 1500, "y": 300}],
-            3: [{"x": 600, "y": 350}, {"x": 1200, "y": 700}],
-            4: [{"x": 700, "y": 500}],
-            5: [{"x": 1000, "y": 400}, {"x": 1800, "y": 450}],
+            1: [{"x": 950, "y": 410}],
+            2: [{"x": 1600, "y": 550}],
+            3: [{"x": 1800, "y": 565}, {"x": 1300, "y": 410}],
+            4: [{"x": 1600, "y": 475}],
+            5: [{"x": 1885, "y": 440}],
         }
 
     @staticmethod
