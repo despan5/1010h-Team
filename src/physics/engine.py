@@ -18,7 +18,7 @@ from physics.consumable import Consumable
 from ui.game_state import GameState
 from ui.start_screen import StartScreen
 from ui.death_screen import DeathScreen
-from ui.high_score import HighScore
+from ui.high_score import Highscore
 from control.level_generation import LevelGeneration
 from control.health import Health
 from control.camera import Camera
@@ -81,13 +81,12 @@ class Engine:
         game_state = GameState()
         death_screen = DeathScreen(self.DISPLAYSURF)
         start_screen = StartScreen(self.DISPLAYSURF)
-        high_score_screen = HighScore(self.DISPLAYSURF)
+        high_score_screen = Highscore(self.DISPLAYSURF)
         
 
         # Player and game objects
         P1 = Player(self.SCREEN_HEIGHT)
         platforms = []
-        Engine.generate_platforms(platforms, self.LEVEL_LENGTH)
         door = Door(self.LEVEL_LENGTH - 200, self.SCREEN_HEIGHT - 450)
         enemies = pygame.sprite.Group (
             Enemy(x=980, y=785, movement_range=160, platforms=platforms, screen_height=self.SCREEN_HEIGHT),

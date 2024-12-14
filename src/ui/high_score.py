@@ -6,9 +6,9 @@ top scores and return to the title or quit the game.
 
 '''
 import pygame
-from database import database
+from database import Database
 
-class highscore:
+class Highscore:
     def __init__(self, screen):
         
         self.screen = screen
@@ -25,7 +25,7 @@ class highscore:
 
         # initialize scoremanager to fetch high scores
         # you can pass the file name here if needed  # make sure to load scores here
-        self.high_scores = database().get_dict_of_all_scores_and_users()  # fetch the top scores after loading them
+        self.high_scores = Database().get_dict_of_all_scores_and_users()  # fetch the top scores after loading them
 
     def draw(self):
         self.screen.fill((0, 0, 0))  # black background
