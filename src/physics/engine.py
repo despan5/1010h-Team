@@ -15,6 +15,7 @@ from ui.high_score import HighScore
 from control.level_generation import LevelGeneration
 from control.health import Health
 from control.camera import Camera
+from physics.Egg import Egg
 
 
 class Engine:
@@ -70,6 +71,40 @@ class Engine:
             ],
         }
 
+        # Fruit configurations for 5 levels
+        self.fruit_configs = {
+            1: [
+                {"x": 400, "y": 650},
+                {"x": 800, "y": 600},
+            ],
+            2: [
+                {"x": 900, "y": 500},
+                {"x": 1200, "y": 400},
+                {"x": 1500, "y": 450},
+            ],
+            3: [
+                {"x": 500, "y": 600},
+                {"x": 1000, "y": 550},
+            ],
+            4: [
+                {"x": 1100, "y": 700},
+                {"x": 1400, "y": 400},
+            ],
+            5: [
+                {"x": 600, "y": 300},
+                {"x": 1300, "y": 600},
+            ],
+        }
+
+        # set egg spawn
+        self.egg_configs = {
+            1: [{"x": 500, "y": 600}],
+            2: [{"x": 800, "y": 450}, {"x": 1500, "y": 300}],
+            3: [{"x": 600, "y": 350}, {"x": 1200, "y": 700}],
+            4: [{"x": 700, "y": 500}],
+            5: [{"x": 1000, "y": 400}, {"x": 1800, "y": 450}],
+        }
+
     @staticmethod
     def generate_platforms(platforms, level_length):
         x = 400
@@ -98,6 +133,26 @@ class Engine:
             ]
         )
 
+    def load_fruits_for_level(self, current_level):
+        """Load fruits dynamically based on the current level."""
+        fruit_configs = self.fruit_configs.get(current_level, [])
+        return pygame.sprite.Group(
+            *[
+                Consumable(
+                    x=config["x"],
+                    y=config["y"],
+                )
+                for config in fruit_configs
+            ]
+        )
+    # load the eggs
+    def load_eggs_for_level(self, current_level):
+        """Load eggs dynamically based on the current level."""
+        egg_configs = self.egg_configs.get(current_level, [])
+        return pygame.sprite.Group(
+            *[Egg(x=config["x"], y=config["y"]) for config in egg_configs]
+        )
+
     def run_engine(self):
         game_state = GameState()
 
@@ -114,7 +169,8 @@ class Engine:
 
         current_level = P1.current_level
         enemies = self.load_enemies_for_level(current_level, platforms)
-        cherry = Consumable(400, 650)
+        fruits = self.load_fruits_for_level(current_level)
+        eggs = self.load_eggs_for_level(current_level)
         camera = Camera(P1, self.SCREEN_WIDTH)
 
         while game_state.current != game_state.states['QUIT']:
@@ -146,6 +202,8 @@ class Engine:
                 if current_level != P1.current_level:
                     current_level = P1.current_level
                     enemies = self.load_enemies_for_level(current_level, platforms)
+                    fruits = self.load_fruits_for_level(current_level)
+                    eggs = self.load_eggs_for_level(current_level)  # Reload eggs for the new level
 
                 # Update level
                 lvl_sheet = os.path.join(
@@ -171,10 +229,11 @@ class Engine:
                 # Update game objects
                 P1.Update(level_gen, enemies, camera, self.SCREEN_HEIGHT)
                 enemies.update()  # Update all enemies in the group
+                fruits.update(P1, P1.hp)  # Update fruits
+                eggs.update(P1)  # Update eggs
                 for enemy in enemies:
                     enemy.Check_Collision(P1, self.SCREEN_HEIGHT)
                 camera.update()
-                cherry.update(P1, P1.hp)
 
                 # Check door collision
                 if door.Check_Collision(P1):
@@ -182,6 +241,7 @@ class Engine:
                     platforms = []
                     Engine.generate_platforms(platforms, self.LEVEL_LENGTH)
                     door = Door(self.LEVEL_LENGTH - 200, self.SCREEN_HEIGHT - 450)
+                    eggs = self.load_eggs_for_level(current_level)  # Reset eggs on level restart
 
                 # Draw objects
                 self.DISPLAYSURF.blit(self.bg, (camera.offset_x % self.SCREEN_WIDTH, 0))
@@ -190,7 +250,10 @@ class Engine:
                 P1.Draw(self.DISPLAYSURF, camera)
                 for enemy in enemies:
                     enemy.Draw(self.DISPLAYSURF, camera)
-                cherry.draw(self.DISPLAYSURF, camera)
+                for fruit in fruits:
+                    fruit.draw(self.DISPLAYSURF, camera)
+                for egg in eggs:  # Draw each egg
+                    egg.draw(self.DISPLAYSURF, camera)
                 level_gen.generate_level(self.DISPLAYSURF, camera, P1)
                 P1.hp.Draw(self.DISPLAYSURF, self.SCREEN_HEIGHT, self.SCREEN_WIDTH)
                 door.Draw(self.DISPLAYSURF, camera)
@@ -200,12 +263,11 @@ class Engine:
                     game_state.set_state('DEATH_SCREEN')
                     P1.update_score(P1.username, P1.score)
 
-                # Display score
+                # Display score and level
                 score_text = self.font.render(f"Score: {P1.get_score()}", True, (255, 255, 255))
-                self.DISPLAYSURF.blit(score_text, (50, 120))
-                # display the level
                 level_text = self.font.render(f"Current Level: {current_level}", True, (255, 255, 255))
-                self.DISPLAYSURF.blit(level_text, (200, 120))  # Adjust the position as needed
+                self.DISPLAYSURF.blit(score_text, (50, 120))
+                self.DISPLAYSURF.blit(level_text, (200, 120))
                 pygame.display.flip()
 
             elif game_state.is_current('DEATH_SCREEN'):
@@ -216,7 +278,8 @@ class Engine:
                     result = death_screen.handle_event(event, game_state, P1)
                     if result == 'RESTART':
                         P1.hp.reset()
-                        cherry.reset()
+                        fruits = self.load_fruits_for_level(current_level)  # Reset fruits
+                        eggs = self.load_eggs_for_level(current_level)  # Reset eggs
                         game_state.set_state('GAME_RUNNING')
                     elif result == 'QUIT':
                         game_state.set_state('QUIT')
@@ -230,8 +293,7 @@ class Engine:
                     elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                         pygame.mixer.music.stop()
                         pygame.quit()
-                        sys.exit() 
+                        sys.exit()
             MAIN_CLOCK.tick(TPS)
 
         pygame.quit()
-
