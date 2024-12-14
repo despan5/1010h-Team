@@ -107,6 +107,30 @@ class Engine:
     def load_eggs_for_level(self, current_level):
         egg_configs = self.egg_configs.get(current_level, [])
         return pygame.sprite.Group(*[Egg(x=config["x"], y=config["y"]) for config in egg_configs])
+    
+    def draw_you_won_screen(self):
+        """Displays the 'You Won' screen."""
+        # Stop the background music
+        pygame.mixer.music.stop()
+
+        # Play the "You Won" sound effect
+        victory_sound_path = os.path.join(PROJECT_ROOT, "assets", "sound", "you_win.mp3")
+        if os.path.exists(victory_sound_path):
+            victory_sound = pygame.mixer.Sound(victory_sound_path)
+            victory_sound.play()
+
+        # Render the "You Won" screen
+        font_path = os.path.join(PROJECT_ROOT, "assets", "fonts", "DarkSouls.ttf")
+        victory_font = pygame.font.Font(font_path, 120) if os.path.exists(font_path) else pygame.font.Font(None, 120)
+
+        victory_text = victory_font.render("YOU WON!", True, (255, 215, 0))  # Golden text
+        text_rect = victory_text.get_rect(center=(self.SCREEN_WIDTH // 2, self.SCREEN_HEIGHT // 2))
+
+        self.DISPLAYSURF.fill((0, 0, 0))  # Black background
+        self.DISPLAYSURF.blit(victory_text, text_rect)
+        pygame.display.flip()
+
+        pygame.time.delay(5000)  # Hold for 5 seconds
 
     def draw_darksouls_death_screen(self):
         """Displays the Dark Souls-style death screen with sound."""
@@ -198,6 +222,11 @@ class Engine:
                     enemies = self.load_enemies_for_level(current_level, platforms)
                     fruits = self.load_fruits_for_level(current_level)
                     eggs = self.load_eggs_for_level(current_level)
+                
+                if P1.current_level == 5 and door.Check_Collision(P1):
+                    self.draw_you_won_screen()
+                    game_state.set_state('QUIT')  # Quit the game after the "You Won" screen
+
 
                 # Update level
                 lvl_sheet = os.path.join(
@@ -228,13 +257,22 @@ class Engine:
                     enemy.Check_Collision(P1, self.SCREEN_HEIGHT)
                 camera.update()
 
-                # Check door collision
                 if door.Check_Collision(P1):
-                    P1.rect.center = (160, self.SCREEN_HEIGHT - 300)
-                    platforms = []
-                    Engine.generate_platforms(platforms, self.LEVEL_LENGTH)
-                    door = Door(self.LEVEL_LENGTH - 200, self.SCREEN_HEIGHT - 450)
-                    eggs = self.load_eggs_for_level(current_level)
+                    if current_level == 5:  # If the player is on level 5 and collides with the door
+                        self.draw_you_won_screen()  # Display the "You Won" screen
+                        game_state.set_state('QUIT')  # Exit the game after showing the screen
+                    else:
+                        P1.increase_level()  # Increase the player's level
+                        current_level = P1.current_level
+                        enemies = self.load_enemies_for_level(current_level, platforms)
+                        fruits = self.load_fruits_for_level(current_level)
+                        eggs = self.load_eggs_for_level(current_level)
+
+                if current_level > 5:  # Prevent loading levels beyond level 5
+                    print(f"Level {current_level} does not exist. Showing 'You Won' screen.")
+                    self.draw_you_won_screen()
+                    game_state.set_state('QUIT')
+                    return
 
                 # Draw objects
                 self.DISPLAYSURF.blit(self.bg, (camera.offset_x % self.SCREEN_WIDTH, 0))
