@@ -96,8 +96,16 @@ class Engine:
     def load_enemies_for_level(self, current_level, platforms):
         enemy_configs = self.enemy_configs.get(current_level, [])
         return pygame.sprite.Group(
-            *[Enemy(x=config["x"], y=config["y"], movement_range=config["movement_range"], platforms=platforms,
-                    screen_height=self.SCREEN_HEIGHT, speed=config.get("speed", 1)) for config in enemy_configs]
+            *[
+                Enemy(
+                    x=config["x"],
+                    y=config["y"],
+                    movement_range=config["movement_range"],
+                    platforms=platforms,
+                    screen_height=self.SCREEN_HEIGHT,
+                )
+                for config in enemy_configs
+            ]
         )
 
     def load_fruits_for_level(self, current_level):
@@ -253,8 +261,10 @@ class Engine:
                 enemies.update()
                 fruits.update(P1, P1.hp)
                 eggs.update(P1)
+                # Update enemies and check for collisions with the player
                 for enemy in enemies:
-                    enemy.Check_Collision(P1, self.SCREEN_HEIGHT)
+                    enemy.update()  # Update enemy position and animation
+                    enemy.Check_Collision(P1, self.SCREEN_HEIGHT)  # Check for collisions
                 camera.update()
 
                 if door.Check_Collision(P1):
