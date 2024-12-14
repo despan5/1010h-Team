@@ -1,3 +1,10 @@
+"""
+Engine Class
+
+The Engine class manages the main game loop, initializes resources, 
+handles different game states, and updates/render components.
+"""
+
 import pygame
 import sys
 import random
@@ -18,14 +25,20 @@ from control.camera import Camera
 
 
 class Engine:
+    """
+    Main game engine class that manages game states, rendering, and interactions.
+    """
 
     def __init__(self):
+        """
+        Initialize the game engine, including screen, assets, and basic settings.
+        """
         pygame.init()
 
-        # Initialize Music
+        # initialize music and audio
         pygame.mixer.init()
 
-        # Screen information
+        # screen and display information
         self.info = pygame.display.Info()
         self.SCREEN_WIDTH = self.info.current_w
         self.SCREEN_HEIGHT = self.info.current_h
@@ -34,30 +47,38 @@ class Engine:
         self.DISPLAYSURF.fill(WHITE)
         pygame.display.set_caption("Game")
 
+        # load background image
         bg_image_path = os.path.join(PROJECT_ROOT, 'assets', 'sprites', 'background', 'background_03.jpg')
         bg_original = pygame.image.load(bg_image_path)
         self.bg = pygame.transform.scale(bg_original, (self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
 
-        self.LEVEL_LENGTH = 5000
-        self.font = pygame.font.Font(None, 36)  # Default font with size 36
 
-    # Platform generation
+        self.LEVEL_LENGTH = 5000  # fixed level length for consistent gameplay
+        self.font = pygame.font.Font(None, 36)  # default font for displaying scores and UI
+
     @staticmethod
     def generate_platforms(platforms, level_length):
+        """
+        Generate random platforms throughout the level.
+        Args:
+            platforms (list): List to store generated platforms.
+            level_length (int): Total length of the level for platform placement.
+        """
         x = 400
         while x < level_length:
-            y = random.randint(400, 700)
-            width = random.randint(100, 300)
+            y = random.randint(400, 700)  # randomize vertical position
+            width = random.randint(100, 300)  # randomize platform width
             height = 20
             platform = Obstacles(x, y, width, height)
             platforms.append(platform)
-            x += random.randint(300, 600)
+            x += random.randint(300, 600)  # ensure consistent spacing
 
     def run_engine(self):
-        # Initialize game state
+        """
+        Run the main game loop and manage different game states.
+        """
+        # initialize game state and screens
         game_state = GameState()
-
-        # Initialize and display UI components
         death_screen = DeathScreen(self.DISPLAYSURF)
         start_screen = StartScreen(self.DISPLAYSURF)
         high_score_screen = HighScore(self.DISPLAYSURF)
@@ -79,6 +100,7 @@ class Engine:
 
         # Main game loop
         while game_state.current != game_state.states['QUIT']:
+            # START MENU
             if game_state.is_current('START_MENU'):
                 start_screen.draw()
                 pygame.display.flip()
@@ -87,13 +109,16 @@ class Engine:
                     result = start_screen.handle_event(event)
                     if result == 'START_GAME':
                         P1.username = start_screen.username
-                        P1.find_score(P1.username)
+                        
+                        P1.find_score(P1.username)  # retrieve player score from database
+
                         game_state.set_state('GAME_RUNNING')
                     elif result == 'SCORE_SCREEN':
                         game_state.set_state('HIGH_SCORE')
                     elif result == 'QUIT':
                         game_state.set_state('QUIT')
 
+            # high score screen
             elif game_state.is_current('HIGH_SCORE'):
                 high_score_screen.draw()
                 pygame.display.flip()
@@ -105,14 +130,18 @@ class Engine:
                     elif result == 'QUIT':
                         game_state.set_state('QUIT')
 
+            # game running
             elif game_state.is_current('GAME_RUNNING'):
                 for event in pygame.event.get():
-                    if event.type == pygame.KEYDOWN and event.key == pygame.K_p:
-                        game_state.set_state('PAUSE')
-                    elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                        pygame.mixer.music.stop()
-                        pygame.quit()
-                        sys.exit()
+                    if event.type == pygame.QUIT:
+                        game_state.set_state('QUIT')
+                    elif event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_ESCAPE:
+                            pygame.mixer.music.stop()
+                            pygame.quit()
+                            sys.exit()
+
+                # update level and assets
                 current_level = P1.current_level
                 lvl_sheet = os.path.join(PROJECT_ROOT, 'assets', 'sprites', 'Platforms', 'generic-grassdirt-tileset', 'lavatiles.png')
                 level_data = LevelGeneration(os.path.join(PROJECT_ROOT, 'assets', 'level_files', f'l{current_level}.csv'), 16, lvl_sheet)
@@ -145,11 +174,14 @@ class Engine:
                 self.DISPLAYSURF.blit(self.bg, (camera.offset_x % self.SCREEN_WIDTH, 0))
                 if camera.offset_x % self.SCREEN_WIDTH != 0:
                     self.DISPLAYSURF.blit(self.bg, (camera.offset_x % self.SCREEN_WIDTH - self.SCREEN_WIDTH, 0))
+
+                # render all entities
                 P1.Draw(self.DISPLAYSURF, camera)
                 for enemy in enemies:
                     enemy.Draw(self.DISPLAYSURF, camera)
                 cherry.draw(self.DISPLAYSURF, camera)
                 level_gen.generate_level(self.DISPLAYSURF, camera, P1)
+
                 P1.hp.Draw(self.DISPLAYSURF, self.SCREEN_HEIGHT, self.SCREEN_WIDTH)
                 door.Draw(self.DISPLAYSURF, camera)
 
@@ -158,9 +190,10 @@ class Engine:
                     game_state.set_state('DEATH_SCREEN')
                     P1.update_score(P1.username, P1.score)
 
-                # Display score
+                # display player score
                 score_text = self.font.render(f"Score: {P1.get_score()}", True, (255, 255, 255))
                 self.DISPLAYSURF.blit(score_text, (50, 120))
+
                 if game_state.is_current('PAUSE'):
                     # Create the text surface
                     pause_text = self.font.render('PAUSED', True, (255, 255, 255))
@@ -172,6 +205,7 @@ class Engine:
                     self.DISPLAYSURF.blit(pause_text, pause_text_rect)
                 pygame.display.flip()
 
+            # death screen
             elif game_state.is_current('DEATH_SCREEN'):
                 death_screen.draw()
                 pygame.display.flip()
@@ -197,4 +231,5 @@ class Engine:
                         sys.exit() 
             MAIN_CLOCK.tick(TPS)
 
+        # quit the game
         pygame.quit()

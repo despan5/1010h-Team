@@ -1,6 +1,22 @@
-# 1010h-Team Agreement Sheet
+# Dino Game
 
-## Roles:
+## Overview
+
+
+
+[Software Demo Video](http://youtube.link.goes.here)
+
+## Development Environment
+
+- **Version Control:** GitHub/GitHub Desktop
+- **Coding Environment:** Visual Studio Code
+- **Database:** MongoDB
+- **Level Creator:** Tiled
+- **Programming Language:** Python
+- **Sprites**: Itch.io
+
+## Collaborators
+
 - **Team Leader:** Thomas Lucas
 - **Project Manager:** Austin Colt
 - **Graphic Designer:** Jacob Atanasio
@@ -8,62 +24,15 @@
 - **Configuration Manager:** Matt Despain
 - **Document Manager:** Caitlyn Caldwell
 
-## Project specifics:
-- **Technology:** Pygame, Firebase
-- **Project Type:** Sidescroller (similar to Mario)
+# Useful Websites
 
-## Requirements:
-- Database
-- Has Features
-- Commented
-- Actually Cool
-
-## Bi-weekly Schedule (Sprint Schedule)
-
-### Week 1:
-- **Monday:**
-  - Stand-up meeting (on Discord)
-
-- **Tuesday:**
-  - Stand-up meeting (on Discord)
-  - In-class meeting
-
-- **Wednesday:**
-  - Stand-up meeting (on Discord)
-
-- **Thursday:**
-  - Stand-up meeting (on Discord)
-  - Sprint retrospection (fancy tech word)
-
-- **Friday:**
-  - Stand-up meeting (on Discord)
-
-### Week 2:
-- **Monday:**
-  - Stand-up meeting (on Discord)
-
-- **Tuesday:**
-  - Stand-up meeting (on Discord)
-  - In-class meeting
-
-- **Wednesday:**
-  - Stand-up meeting (on Discord)
-
-- **Thursday:**
-  - Stand-up meeting (on Discord)
-  - Sprint planning (adding tasks, minimizing scaling)
-
-- **Friday:**
-  - Stand-up meeting (on Discord)
-
-## Features:
-  - Start Game Menu/Screen + Database
-  - Designed Levels
-  - Power-ups (temporary buff)
-  - Permanent Character Upgrades
-  - Attack Mechanics
-
-## Important Links:
 - [Jira Main Pipeline](https://byui-cse310.atlassian.net/jira/software/projects/PYGM/boards/1)
 - [Pygame Tutorials](https://www.pygame.org/wiki/tutorials)
 - [Invent with Python - Pygame Chapter](https://inventwithpython.com/pygame/chapter2.html)
+
+## Future Work
+
+{Make a list of things that you need to fix, improve, and add in the future.}
+- Item 1
+- Item 2
+- Item 3
