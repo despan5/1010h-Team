@@ -41,7 +41,35 @@ class Engine:
         self.LEVEL_LENGTH = 5000
         self.font = pygame.font.Font(None, 36)  # Default font with size 36
 
-    # Platform generation
+        # Enemy configurations for 5 levels
+        self.enemy_configs = {
+            1: [
+                {"x": 500, "y": 700, "movement_range": 100},
+                {"x": 1200, "y": 500, "movement_range": 150},
+                {"x": 2000, "y": 300, "movement_range": 200},
+            ],
+            2: [
+                {"x": 800, "y": 600, "movement_range": 120},
+                {"x": 1600, "y": 400, "movement_range": 100},
+                {"x": 2500, "y": 700, "movement_range": 180},
+            ],
+            3: [
+                {"x": 600, "y": 750, "movement_range": 130},
+                {"x": 1400, "y": 550, "movement_range": 140},
+                {"x": 2300, "y": 350, "movement_range": 160},
+            ],
+            4: [
+                {"x": 700, "y": 650, "movement_range": 110},
+                {"x": 1500, "y": 450, "movement_range": 200},
+                {"x": 2400, "y": 300, "movement_range": 150},
+            ],
+            5: [
+                {"x": 900, "y": 600, "movement_range": 120},
+                {"x": 1700, "y": 500, "movement_range": 180},
+                {"x": 2600, "y": 400, "movement_range": 200},
+            ],
+        }
+
     @staticmethod
     def generate_platforms(platforms, level_length):
         x = 400
@@ -53,32 +81,41 @@ class Engine:
             platforms.append(platform)
             x += random.randint(300, 600)
 
+    def load_enemies_for_level(self, current_level, platforms):
+        """Load enemies dynamically based on the current level."""
+        enemy_configs = self.enemy_configs.get(current_level, [])
+        return pygame.sprite.Group(
+            *[
+                Enemy(
+                    x=config["x"],
+                    y=config["y"],
+                    movement_range=config["movement_range"],
+                    platforms=platforms,
+                    screen_height=self.SCREEN_HEIGHT,
+                )
+                for config in enemy_configs
+            ]
+        )
+
     def run_engine(self):
-        # Initialize game state
         game_state = GameState()
 
         # Initialize and display UI components
         death_screen = DeathScreen(self.DISPLAYSURF)
         start_screen = StartScreen(self.DISPLAYSURF)
         high_score_screen = HighScore(self.DISPLAYSURF)
-        
 
         # Player and game objects
         P1 = Player(self.SCREEN_HEIGHT)
         platforms = []
         Engine.generate_platforms(platforms, self.LEVEL_LENGTH)
         door = Door(self.LEVEL_LENGTH - 200, self.SCREEN_HEIGHT - 450)
-        
-        enemies = pygame.sprite.Group (
-            Enemy(x=980, y=785, movement_range=160, platforms=platforms, screen_height=self.SCREEN_HEIGHT),
-            Enemy(x=1840, y=330, movement_range=150, platforms=platforms, screen_height=self.SCREEN_HEIGHT),
-            Enemy(x=2935, y=755, movement_range=150, platforms=platforms, screen_height=self.SCREEN_HEIGHT),
-        )
+
+        current_level = P1.current_level
+        enemies = self.load_enemies_for_level(current_level, platforms)
         cherry = Consumable(400, 650)
         camera = Camera(P1, self.SCREEN_WIDTH)
-        
 
-        # Main game loop
         while game_state.current != game_state.states['QUIT']:
             if game_state.is_current('START_MENU'):
                 start_screen.draw()
@@ -95,17 +132,6 @@ class Engine:
                     elif result == 'QUIT':
                         game_state.set_state('QUIT')
 
-            elif game_state.is_current('HIGH_SCORE'):
-                high_score_screen.draw()
-                pygame.display.flip()
-
-                for event in pygame.event.get():
-                    result = high_score_screen.handle_event(event)
-                    if result == 'RETURN':
-                        game_state.set_state('START_MENU')
-                    elif result == 'QUIT':
-                        game_state.set_state('QUIT')
-
             elif game_state.is_current('GAME_RUNNING'):
                 for event in pygame.event.get():
                     if event.type == pygame.KEYDOWN and event.key == pygame.K_p:
@@ -114,9 +140,19 @@ class Engine:
                         pygame.mixer.music.stop()
                         pygame.quit()
                         sys.exit()
-                current_level = P1.current_level
-                lvl_sheet = os.path.join(PROJECT_ROOT, 'assets', 'sprites', 'Platforms', 'generic-grassdirt-tileset', 'lavatiles.png')
-                level_data = LevelGeneration(os.path.join(PROJECT_ROOT, 'assets', 'level_files', f'l{current_level}.csv'), 16, lvl_sheet)
+
+                # Check if the level has changed
+                if current_level != P1.current_level:
+                    current_level = P1.current_level
+                    enemies = self.load_enemies_for_level(current_level, platforms)
+
+                # Update level
+                lvl_sheet = os.path.join(
+                    PROJECT_ROOT, 'assets', 'sprites', 'Platforms', 'generic-grassdirt-tileset', 'lavatiles.png'
+                )
+                level_data = LevelGeneration(
+                    os.path.join(PROJECT_ROOT, 'assets', 'level_files', f'l{current_level}.csv'), 16, lvl_sheet
+                )
                 level_data.load_level()
 
                 # Calculate tile size
@@ -124,13 +160,17 @@ class Engine:
                 scale_factor = self.SCREEN_HEIGHT / rows
                 self.tile_size = int(scale_factor)
                 self.level_width = int(self.tile_size * len(level_data.level_data[0]))
-                level_gen = LevelGeneration(os.path.join(PROJECT_ROOT, 'assets', 'level_files', f'l{current_level}.csv'), self.tile_size, lvl_sheet)
+                level_gen = LevelGeneration(
+                    os.path.join(PROJECT_ROOT, 'assets', 'level_files', f'l{current_level}.csv'),
+                    self.tile_size,
+                    lvl_sheet,
+                )
                 level_gen.load_level()
 
                 # Update game objects
                 P1.Update(level_gen, enemies, camera, self.SCREEN_HEIGHT)
+                enemies.update()  # Update all enemies in the group
                 for enemy in enemies:
-                    enemy.update()
                     enemy.Check_Collision(P1, self.SCREEN_HEIGHT)
                 camera.update()
                 cherry.update(P1, P1.hp)
@@ -162,15 +202,6 @@ class Engine:
                 # Display score
                 score_text = self.font.render(f"Score: {P1.get_score()}", True, (255, 255, 255))
                 self.DISPLAYSURF.blit(score_text, (50, 120))
-                if game_state.is_current('PAUSE'):
-                    # Create the text surface
-                    pause_text = self.font.render('PAUSED', True, (255, 255, 255))
-                    # Get the rectangle of the text surface
-                    pause_text_rect = pause_text.get_rect()
-                    # Center the rectangle on the screen
-                    pause_text_rect.center = (self.SCREEN_WIDTH // 2, self.SCREEN_HEIGHT // 2)
-                    # Blit the text surface onto the display surface
-                    self.DISPLAYSURF.blit(pause_text, pause_text_rect)
                 pygame.display.flip()
 
             elif game_state.is_current('DEATH_SCREEN'):
