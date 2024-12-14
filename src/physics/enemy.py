@@ -6,6 +6,7 @@ class Enemy(pygame.sprite.Sprite):
     def __init__(self, x, y, movement_range, platforms, screen_height, speed=1):
         super().__init__()
         sprite_sheet_path = os.path.join(PROJECT_ROOT, 'assets', 'sprites', 'male', 'mort', 'ghost', 'move.png')
+        self.hit_sound = pygame.mixer.Sound(os.path.join(PROJECT_ROOT, 'assets', 'sound', 'oof.mp3'))
 
         # Load the sprite sheet
         sprite_sheet = pygame.image.load(sprite_sheet_path).convert_alpha()
