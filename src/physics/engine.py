@@ -18,7 +18,7 @@ from physics.consumable import Consumable
 from ui.game_state import GameState
 from ui.start_screen import StartScreen
 from ui.death_screen import DeathScreen
-from ui.high_score import HighScore
+from ui.high_score import highscore
 from control.level_generation import LevelGeneration
 from control.health import Health
 from control.camera import Camera
@@ -203,7 +203,7 @@ class Engine:
         # Initialize UI components
         death_screen = DeathScreen(self.DISPLAYSURF)
         start_screen = StartScreen(self.DISPLAYSURF)
-        high_score_screen = HighScore(self.DISPLAYSURF)
+        high_score_screen = highscore(self.DISPLAYSURF)
 
 
         # Player and game objects
@@ -360,18 +360,5 @@ class Engine:
                         pygame.quit()
                         sys.exit()
             MAIN_CLOCK.tick(TPS)
-
-            elif game_state.is_current('PAUSE'):
-                pause_text = self.font.render('PAUSED', True, (255, 255, 255))
-                self.DISPLAYSURF.blit(pause_text, (1000, 1000))
-                for event in pygame.event.get():
-                    if event.type == pygame.KEYDOWN and event.key == pygame.K_p:
-                        game_state.set_state('GAME_RUNNING')
-                    elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                        pygame.mixer.music.stop()
-                        pygame.quit()
-                        sys.exit() 
-            MAIN_CLOCK.tick(TPS)
-
         # quit the game
         pygame.quit()
