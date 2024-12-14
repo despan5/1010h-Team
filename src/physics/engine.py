@@ -45,64 +45,65 @@ class Engine:
         # Enemy configurations for 5 levels
         self.enemy_configs = {
             1: [
-                {"x": 500, "y": 700, "movement_range": 100, "speed": 1},
-                {"x": 1200, "y": 500, "movement_range": 150, "speed": 1},
-                {"x": 2000, "y": 300, "movement_range": 200, "speed": 1},
+                {"x": 890, "y": 390, "movement_range": 125, "speed": 1},
+                {"x": 1500, "y": 220, "movement_range": 150, "speed": 1},
+                # {"x": 2000, "y": 300, "movement_range": 200, "speed": 1},
             ],
             2: [
-                {"x": 800, "y": 600, "movement_range": 120, "speed": 1.5},
-                {"x": 1600, "y": 400, "movement_range": 100, "speed": 1.5},
-                {"x": 2500, "y": 700, "movement_range": 180, "speed": 1.5},
+                {"x": 1600, "y": 525, "movement_range": 350, "speed": 2},
+                {"x": 1125, "y": 80, "movement_range": 175, "speed": 1},
+                {"x": 2350, "y": 220, "movement_range": 175, "speed": 2},
             ],
             3: [
-                {"x": 600, "y": 750, "movement_range": 130, "speed": 2},
-                {"x": 1400, "y": 550, "movement_range": 140, "speed": 2},
-                {"x": 2300, "y": 350, "movement_range": 160, "speed": 2},
+                {"x": 530, "y": 440, "movement_range": 340, "speed": 4},
+                {"x": 1710, "y": 555, "movement_range": 300, "speed": 4},
+                {"x": 1600, "y": 725, "movement_range": 775, "speed": 8},
             ],
             4: [
-                {"x": 700, "y": 650, "movement_range": 110, "speed": 2.5},
-                {"x": 1500, "y": 450, "movement_range": 200, "speed": 2.5},
-                {"x": 2400, "y": 300, "movement_range": 150, "speed": 2.5},
+                {"x": 1200, "y": 580, "movement_range": 200, "speed": 4},
+                {"x": 1575, "y": 440, "movement_range": 120, "speed": 4},
+                {"x": 1990, "y": 250, "movement_range": 160, "speed": 8},
+                {"x": 1800, "y": 725, "movement_range": 800, "speed": 12},
             ],
             5: [
-                {"x": 900, "y": 600, "movement_range": 120, "speed": 3},
-                {"x": 1700, "y": 500, "movement_range": 180, "speed": 3},
-                {"x": 2600, "y": 400, "movement_range": 200, "speed": 3},
+                {"x": 1000, "y": 725, "movement_range": 500, "speed": 16},
+                {"x": 2400, "y": 725, "movement_range": 250, "speed": 12},
+                {"x": 1880, "y": 415, "movement_range": 110, "speed": 3},
+                {"x": 1150, "y": 385, "movement_range": 150, "speed": 3},
+                {"x": 770, "y": 610, "movement_range": 140, "speed": 3},
             ],
         }
 
         # Fruit configurations for 5 levels
         self.fruit_configs = {
             1: [
-                {"x": 400, "y": 650},
-                {"x": 800, "y": 600},
+                {"x": 1060, "y": 140},
+                # {"x": 800, "y": 600},
             ],
             2: [
-                {"x": 900, "y": 500},
-                {"x": 1200, "y": 400},
-                {"x": 1500, "y": 450},
+                {"x": 1600, "y": 360},
+                # {"x": 1500, "y": 450},
             ],
             3: [
-                {"x": 500, "y": 600},
-                {"x": 1000, "y": 550},
+                {"x": 2500, "y": 250},
             ],
             4: [
-                {"x": 1100, "y": 700},
-                {"x": 1400, "y": 400},
+                {"x": 1320, "y": 365},
+                {"x": 1750, "y": 365},
             ],
             5: [
-                {"x": 600, "y": 300},
-                {"x": 1300, "y": 600},
+                {"x": 970, "y": 535},
+                {"x": 1850, "y": 600},
             ],
         }
 
         # set egg spawn
         self.egg_configs = {
-            1: [{"x": 500, "y": 600}],
-            2: [{"x": 800, "y": 450}, {"x": 1500, "y": 300}],
-            3: [{"x": 600, "y": 350}, {"x": 1200, "y": 700}],
-            4: [{"x": 700, "y": 500}],
-            5: [{"x": 1000, "y": 400}, {"x": 1800, "y": 450}],
+            1: [{"x": 950, "y": 410}],
+            2: [{"x": 1600, "y": 550}],
+            3: [{"x": 1800, "y": 565}, {"x": 1300, "y": 410}],
+            4: [{"x": 1600, "y": 475}],
+            5: [{"x": 1885, "y": 440}],
         }
 
     @staticmethod
@@ -152,6 +153,22 @@ class Engine:
         return pygame.sprite.Group(
             *[Egg(x=config["x"], y=config["y"]) for config in egg_configs]
         )
+    def set_level(self, level, P1, platforms):
+        """
+        Set the game to a specific level for testing purposes.
+        Args:
+            level (int): The level to jump to.
+            P1 (Player): The player object.
+            platforms (list): List of platform objects.
+        """
+        P1.current_level = level
+        platforms.clear()
+        self.generate_platforms(platforms, self.LEVEL_LENGTH)  # Re-generate platforms
+        self.door = Door(self.LEVEL_LENGTH - 200, self.SCREEN_HEIGHT - 450)  # Update the door position
+        self.enemies = self.load_enemies_for_level(level, platforms)  # Load enemies
+        self.fruits = self.load_fruits_for_level(level)  # Load fruits
+        self.eggs = self.load_eggs_for_level(level)  # Load eggs
+        print(f"Jumped to level {level}")
 
     def run_engine(self):
         game_state = GameState()
@@ -168,9 +185,9 @@ class Engine:
         door = Door(self.LEVEL_LENGTH - 200, self.SCREEN_HEIGHT - 450)
 
         current_level = P1.current_level
+        eggs = self.load_eggs_for_level(current_level)
         enemies = self.load_enemies_for_level(current_level, platforms)
         fruits = self.load_fruits_for_level(current_level)
-        eggs = self.load_eggs_for_level(current_level)
         camera = Camera(P1, self.SCREEN_WIDTH)
 
         while game_state.current != game_state.states['QUIT']:
@@ -179,15 +196,24 @@ class Engine:
                 pygame.display.flip()
 
                 for event in pygame.event.get():
-                    result = start_screen.handle_event(event)
-                    if result == 'START_GAME':
-                        P1.username = start_screen.username
-                        P1.find_score(P1.username)
-                        game_state.set_state('GAME_RUNNING')
-                    elif result == 'SCORE_SCREEN':
-                        game_state.set_state('HIGH_SCORE')
-                    elif result == 'QUIT':
-                        game_state.set_state('QUIT')
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_1:  # Jump to Level 1
+                            self.set_level(1, P1, platforms)
+                            game_state.set_state('GAME_RUNNING')
+                        elif event.key == pygame.K_2:  # Jump to Level 2
+                            self.set_level(2, P1, platforms)
+                            game_state.set_state('GAME_RUNNING')
+                        elif event.key == pygame.K_3:  # Jump to Level 3
+                            self.set_level(3, P1, platforms)
+                            game_state.set_state('GAME_RUNNING')
+                        elif event.key == pygame.K_4:  # Jump to Level 4
+                            self.set_level(4, P1, platforms)
+                            game_state.set_state('GAME_RUNNING')
+                        elif event.key == pygame.K_5:  # Jump to Level 5
+                            self.set_level(5, P1, platforms)
+                            game_state.set_state('GAME_RUNNING')
+                        elif event.key == pygame.K_ESCAPE:  # Quit game
+                            game_state.set_state('QUIT')
 
             elif game_state.is_current('GAME_RUNNING'):
                 for event in pygame.event.get():
@@ -203,7 +229,7 @@ class Engine:
                     current_level = P1.current_level
                     enemies = self.load_enemies_for_level(current_level, platforms)
                     fruits = self.load_fruits_for_level(current_level)
-                    eggs = self.load_eggs_for_level(current_level)  # Reload eggs for the new level
+                    eggs = self.load_eggs_for_level(current_level)
 
                 # Update level
                 lvl_sheet = os.path.join(
@@ -241,7 +267,6 @@ class Engine:
                     platforms = []
                     Engine.generate_platforms(platforms, self.LEVEL_LENGTH)
                     door = Door(self.LEVEL_LENGTH - 200, self.SCREEN_HEIGHT - 450)
-                    eggs = self.load_eggs_for_level(current_level)  # Reset eggs on level restart
 
                 # Draw objects
                 self.DISPLAYSURF.blit(self.bg, (camera.offset_x % self.SCREEN_WIDTH, 0))
@@ -252,7 +277,7 @@ class Engine:
                     enemy.Draw(self.DISPLAYSURF, camera)
                 for fruit in fruits:
                     fruit.draw(self.DISPLAYSURF, camera)
-                for egg in eggs:  # Draw each egg
+                for egg in eggs:
                     egg.draw(self.DISPLAYSURF, camera)
                 level_gen.generate_level(self.DISPLAYSURF, camera, P1)
                 P1.hp.Draw(self.DISPLAYSURF, self.SCREEN_HEIGHT, self.SCREEN_WIDTH)
@@ -285,15 +310,31 @@ class Engine:
                         game_state.set_state('QUIT')
 
             elif game_state.is_current('PAUSE'):
-                pause_text = self.font.render('PAUSED', True, (255, 255, 255))
-                self.DISPLAYSURF.blit(pause_text, (1000, 1000))
+                pause_text = self.font.render('PAUSED - Press 1-5 to select level', True, (255, 255, 255))
+                self.DISPLAYSURF.blit(pause_text, (self.SCREEN_WIDTH // 2 - 200, self.SCREEN_HEIGHT // 2 - 50))
+                pygame.display.flip()
+
                 for event in pygame.event.get():
-                    if event.type == pygame.KEYDOWN and event.key == pygame.K_p:
-                        game_state.set_state('GAME_RUNNING')
-                    elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                        pygame.mixer.music.stop()
-                        pygame.quit()
-                        sys.exit()
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_1:
+                            self.set_level(1, P1, platforms)
+                            game_state.set_state('GAME_RUNNING')
+                        elif event.key == pygame.K_2:
+                            self.set_level(2, P1, platforms)
+                            game_state.set_state('GAME_RUNNING')
+                        elif event.key == pygame.K_3:
+                            self.set_level(3, P1, platforms)
+                            game_state.set_state('GAME_RUNNING')
+                        elif event.key == pygame.K_4:
+                            self.set_level(4, P1, platforms)
+                            game_state.set_state('GAME_RUNNING')
+                        elif event.key == pygame.K_5:
+                            self.set_level(5, P1, platforms)
+                            game_state.set_state('GAME_RUNNING')
+                        elif event.key == pygame.K_p:  # Unpause
+                            game_state.set_state('GAME_RUNNING')
+                        elif event.key == pygame.K_ESCAPE:  # Quit game
+                            game_state.set_state('QUIT')
             MAIN_CLOCK.tick(TPS)
 
         pygame.quit()
