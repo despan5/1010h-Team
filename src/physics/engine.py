@@ -36,6 +36,7 @@ class Engine:
         pygame.display.set_caption("Game")
 
         bg_image_path = os.path.join(PROJECT_ROOT, 'assets', 'sprites', 'background', 'background_03.jpg')
+        self.hit_sound = pygame.mixer.Sound(os.path.join(PROJECT_ROOT, 'assets', 'sounds', 'oof.mp3'))
         bg_original = pygame.image.load(bg_image_path)
         self.bg = pygame.transform.scale(bg_original, (self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
 
@@ -220,6 +221,7 @@ class Engine:
                 eggs.update(P1)  # Update eggs
                 for enemy in enemies:
                     enemy.Check_Collision(P1, self.SCREEN_HEIGHT)
+                    self.hit_sound.play()  # Play hit sound
                 camera.update()
 
                 # Check door collision

@@ -70,6 +70,7 @@ class Enemy(pygame.sprite.Sprite):
             else:
                 player.rect.center = (160, screen_height - 300)
                 player.hp.Take_Damage()  # Assuming player has an hp attribute
+                self.hit_sound.play()  # Play hit soun
 
     def Draw(self, surface, camera):
         """Draw the enemy sprite."""
