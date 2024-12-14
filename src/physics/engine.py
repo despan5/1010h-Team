@@ -36,7 +36,6 @@ class Engine:
         pygame.display.set_caption("Game")
 
         bg_image_path = os.path.join(PROJECT_ROOT, 'assets', 'sprites', 'background', 'background_03.jpg')
-        self.hit_sound = pygame.mixer.Sound(os.path.join(PROJECT_ROOT, 'assets', 'sound', 'oof.mp3'))
         bg_original = pygame.image.load(bg_image_path)
         self.bg = pygame.transform.scale(bg_original, (self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
 
@@ -45,34 +44,24 @@ class Engine:
 
         # Enemy configurations for 5 levels
         self.enemy_configs = {
-            1: [
-                {"x": 890, "y": 390, "movement_range": 125, "speed": 2},
-                {"x": 1500, "y": 220, "movement_range": 150, "speed": 4},
-            ],
-            2: [
-                {"x": 1600, "y": 525, "movement_range": 350, "speed": 6},
+            1: [{"x": 890, "y": 390, "movement_range": 125, "speed": 2},
+                {"x": 1500, "y": 220, "movement_range": 150, "speed": 4}],
+            2: [{"x": 1600, "y": 525, "movement_range": 350, "speed": 6},
                 {"x": 1125, "y": 80, "movement_range": 175, "speed": 4},
                 {"x": 2350, "y": 220, "movement_range": 175, "speed": 6},
-                {"x": 1500, "y": 725, "movement_range": 800, "speed": 6},
-            ],
-            3: [
-                {"x": 530, "y": 440, "movement_range": 340, "speed": 5},
+                {"x": 1500, "y": 725, "movement_range": 800, "speed": 6}],
+            3: [{"x": 530, "y": 440, "movement_range": 340, "speed": 5},
                 {"x": 1710, "y": 555, "movement_range": 300, "speed": 5},
-                {"x": 1600, "y": 725, "movement_range": 775, "speed": 9},
-            ],
-            4: [
-                {"x": 1200, "y": 580, "movement_range": 200, "speed": 5},
+                {"x": 1600, "y": 725, "movement_range": 775, "speed": 9}],
+            4: [{"x": 1200, "y": 580, "movement_range": 200, "speed": 5},
                 {"x": 1575, "y": 440, "movement_range": 120, "speed": 5},
                 {"x": 1990, "y": 250, "movement_range": 160, "speed": 9},
-                {"x": 1800, "y": 725, "movement_range": 800, "speed": 13},
-            ],
-            5: [
-                {"x": 1000, "y": 725, "movement_range": 500, "speed": 16},
+                {"x": 1800, "y": 725, "movement_range": 800, "speed": 13}],
+            5: [{"x": 1000, "y": 725, "movement_range": 500, "speed": 16},
                 {"x": 2400, "y": 725, "movement_range": 250, "speed": 12},
                 {"x": 1880, "y": 415, "movement_range": 110, "speed": 4},
                 {"x": 1150, "y": 385, "movement_range": 150, "speed": 4},
-                {"x": 770, "y": 610, "movement_range": 140, "speed": 4},
-            ],
+                {"x": 770, "y": 610, "movement_range": 140, "speed": 4}],
         }
 
         # Fruit configurations for 5 levels
@@ -105,46 +94,56 @@ class Engine:
             x += random.randint(300, 600)
 
     def load_enemies_for_level(self, current_level, platforms):
-        """Load enemies dynamically based on the current level."""
         enemy_configs = self.enemy_configs.get(current_level, [])
         return pygame.sprite.Group(
-            *[
-                Enemy(
-                    x=config["x"],
-                    y=config["y"],
-                    movement_range=config["movement_range"],
-                    platforms=platforms,
-                    screen_height=self.SCREEN_HEIGHT,
-                    speed=config.get("speed", 1),  # Default speed if not specified
-                )
-                for config in enemy_configs
-            ]
+            *[Enemy(x=config["x"], y=config["y"], movement_range=config["movement_range"], platforms=platforms,
+                    screen_height=self.SCREEN_HEIGHT, speed=config.get("speed", 1)) for config in enemy_configs]
         )
 
     def load_fruits_for_level(self, current_level):
-        """Load fruits dynamically based on the current level."""
         fruit_configs = self.fruit_configs.get(current_level, [])
-        return pygame.sprite.Group(
-            *[
-                Consumable(
-                    x=config["x"],
-                    y=config["y"],
-                )
-                for config in fruit_configs
-            ]
-        )
-    # load the eggs
+        return pygame.sprite.Group(*[Consumable(x=config["x"], y=config["y"]) for config in fruit_configs])
+
     def load_eggs_for_level(self, current_level):
-        """Load eggs dynamically based on the current level."""
         egg_configs = self.egg_configs.get(current_level, [])
-        return pygame.sprite.Group(
-            *[Egg(x=config["x"], y=config["y"]) for config in egg_configs]
-        )
+        return pygame.sprite.Group(*[Egg(x=config["x"], y=config["y"]) for config in egg_configs])
+
+    def draw_darksouls_death_screen(self):
+        """Displays the Dark Souls-style death screen with sound."""
+        # Play the death sound (only once when this is called)
+        death_sound_path = os.path.join(PROJECT_ROOT, "assets", "sound", "you_died.mp3")
+        if os.path.exists(death_sound_path):  # Check if the sound file exists
+            death_sound = pygame.mixer.Sound(death_sound_path)
+            death_sound.play()
+
+        # Render "YOU DIED" text
+        font_path = os.path.join(PROJECT_ROOT, "assets", "fonts", "DarkSouls.ttf")  # Path to Dark Souls font
+        if os.path.exists(font_path):
+            death_font = pygame.font.Font(font_path, 120)  # Large font size for "YOU DIED"
+        else:
+            death_font = pygame.font.Font(None, 120)  # Fallback to a default font if custom font is missing
+
+        # Render "YOU DIED" text in red with a dark outline
+        death_text = death_font.render("YOU DIED", True, (178, 34, 34))  # Dark red
+        death_text_outline = death_font.render("YOU DIED", True, (0, 0, 0))  # Black outline
+
+        # Center the text on the screen
+        text_rect = death_text.get_rect(center=(self.SCREEN_WIDTH // 2, self.SCREEN_HEIGHT // 2))
+
+        # Display the text on the screen
+        self.DISPLAYSURF.fill((0, 0, 0))  # Black background
+        for offset in [(-2, -2), (2, -2), (-2, 2), (2, 2)]:  # Draw outline (slightly offset)
+            self.DISPLAYSURF.blit(death_text_outline, (text_rect.x + offset[0], text_rect.y + offset[1]))
+        self.DISPLAYSURF.blit(death_text, text_rect)  # Draw the main "YOU DIED" text
+        pygame.display.flip()
+
+        # Wait for 5 seconds
+        pygame.time.delay(5000)
 
     def run_engine(self):
         game_state = GameState()
 
-        # Initialize and display UI components
+        # Initialize UI components
         death_screen = DeathScreen(self.DISPLAYSURF)
         start_screen = StartScreen(self.DISPLAYSURF)
         high_score_screen = HighScore(self.DISPLAYSURF)
@@ -191,7 +190,7 @@ class Engine:
                     current_level = P1.current_level
                     enemies = self.load_enemies_for_level(current_level, platforms)
                     fruits = self.load_fruits_for_level(current_level)
-                    eggs = self.load_eggs_for_level(current_level)  # Reload eggs for the new level
+                    eggs = self.load_eggs_for_level(current_level)
 
                 # Update level
                 lvl_sheet = os.path.join(
@@ -202,7 +201,6 @@ class Engine:
                 )
                 level_data.load_level()
 
-                # Calculate tile size
                 rows = len(level_data.level_data)
                 scale_factor = self.SCREEN_HEIGHT / rows
                 self.tile_size = int(scale_factor)
@@ -216,9 +214,9 @@ class Engine:
 
                 # Update game objects
                 P1.Update(level_gen, enemies, camera, self.SCREEN_HEIGHT)
-                enemies.update()  # Update all enemies in the group
-                fruits.update(P1, P1.hp)  # Update fruits
-                eggs.update(P1)  # Update eggs
+                enemies.update()
+                fruits.update(P1, P1.hp)
+                eggs.update(P1)
                 for enemy in enemies:
                     enemy.Check_Collision(P1, self.SCREEN_HEIGHT)
                 camera.update()
@@ -229,7 +227,7 @@ class Engine:
                     platforms = []
                     Engine.generate_platforms(platforms, self.LEVEL_LENGTH)
                     door = Door(self.LEVEL_LENGTH - 200, self.SCREEN_HEIGHT - 450)
-                    eggs = self.load_eggs_for_level(current_level)  # Reset eggs on level restart
+                    eggs = self.load_eggs_for_level(current_level)
 
                 # Draw objects
                 self.DISPLAYSURF.blit(self.bg, (camera.offset_x % self.SCREEN_WIDTH, 0))
@@ -240,7 +238,7 @@ class Engine:
                     enemy.Draw(self.DISPLAYSURF, camera)
                 for fruit in fruits:
                     fruit.draw(self.DISPLAYSURF, camera)
-                for egg in eggs:  # Draw each egg
+                for egg in eggs:
                     egg.draw(self.DISPLAYSURF, camera)
                 level_gen.generate_level(self.DISPLAYSURF, camera, P1)
                 P1.hp.Draw(self.DISPLAYSURF, self.SCREEN_HEIGHT, self.SCREEN_WIDTH)
@@ -248,10 +246,10 @@ class Engine:
 
                 # Handle death
                 if P1.hp.health_count <= 0:
-                    game_state.set_state('DEATH_SCREEN')
+                    self.draw_darksouls_death_screen()  # Show Dark Souls death screen
+                    game_state.set_state('DEATH_SCREEN')  # Switch to the death screen
                     P1.update_score(P1.username, P1.score)
 
-                # Display score and level
                 score_text = self.font.render(f"Score: {P1.get_score()}", True, (255, 255, 255))
                 level_text = self.font.render(f"Current Level: {current_level}", True, (255, 255, 255))
                 self.DISPLAYSURF.blit(score_text, (50, 120))
@@ -266,8 +264,8 @@ class Engine:
                     result = death_screen.handle_event(event, game_state, P1)
                     if result == 'RESTART':
                         P1.hp.reset()
-                        fruits = self.load_fruits_for_level(current_level)  # Reset fruits
-                        eggs = self.load_eggs_for_level(current_level)  # Reset eggs
+                        fruits = self.load_fruits_for_level(current_level)
+                        eggs = self.load_eggs_for_level(current_level)
                         game_state.set_state('GAME_RUNNING')
                     elif result == 'QUIT':
                         game_state.set_state('QUIT')
