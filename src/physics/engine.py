@@ -110,35 +110,42 @@ class Engine:
 
     def draw_darksouls_death_screen(self):
         """Displays the Dark Souls-style death screen with sound."""
-        # Play the death sound (only once when this is called)
+        # Pause background music
+        pygame.mixer.music.pause()
+
+        # Path to the death sound
         death_sound_path = os.path.join(PROJECT_ROOT, "assets", "sound", "you_died.mp3")
+        
+        # Load and play the sound
         if os.path.exists(death_sound_path):  # Check if the sound file exists
             death_sound = pygame.mixer.Sound(death_sound_path)
+            death_sound.set_volume(1.0)  # Ensure the volume is set to max
             death_sound.play()
-
-        # Render "YOU DIED" text
-        font_path = os.path.join(PROJECT_ROOT, "assets", "fonts", "DarkSouls.ttf")  # Path to Dark Souls font
-        if os.path.exists(font_path):
-            death_font = pygame.font.Font(font_path, 120)  # Large font size for "YOU DIED"
+            print("Playing death sound...")
         else:
-            death_font = pygame.font.Font(None, 120)  # Fallback to a default font if custom font is missing
-
-        # Render "YOU DIED" text in red with a dark outline
+            print(f"Death sound not found at {death_sound_path}")
+        
+        # Render "YOU DIED" text
+        font_path = os.path.join(PROJECT_ROOT, "assets", "fonts", "DarkSouls.ttf")
+        if os.path.exists(font_path):
+            death_font = pygame.font.Font(font_path, 120)  # Large font size
+        else:
+            death_font = pygame.font.Font(None, 120)  # Fallback to a default font
+        
         death_text = death_font.render("YOU DIED", True, (178, 34, 34))  # Dark red
-        death_text_outline = death_font.render("YOU DIED", True, (0, 0, 0))  # Black outline
-
-        # Center the text on the screen
         text_rect = death_text.get_rect(center=(self.SCREEN_WIDTH // 2, self.SCREEN_HEIGHT // 2))
 
-        # Display the text on the screen
+        # Black background and text
         self.DISPLAYSURF.fill((0, 0, 0))  # Black background
-        for offset in [(-2, -2), (2, -2), (-2, 2), (2, 2)]:  # Draw outline (slightly offset)
-            self.DISPLAYSURF.blit(death_text_outline, (text_rect.x + offset[0], text_rect.y + offset[1]))
-        self.DISPLAYSURF.blit(death_text, text_rect)  # Draw the main "YOU DIED" text
+        self.DISPLAYSURF.blit(death_text, text_rect)  # Draw text
         pygame.display.flip()
 
-        # Wait for 5 seconds
+        # Hold the screen for 5 seconds
         pygame.time.delay(5000)
+
+        # Resume background music
+        pygame.mixer.music.unpause()
+
 
     def run_engine(self):
         game_state = GameState()
