@@ -5,19 +5,18 @@ from constants import PROJECT_ROOT
 from database import Database
 
 
-
 class Player(pygame.sprite.Sprite):
     def __init__(self, SCREEN_HEIGHT):
         super().__init__()
-        
+
         self.username = None
-        # load sprite sheets for different animations
+        # Load sprite sheets for different animations
         self.idle_sprites = self.load_sprites(os.path.join(PROJECT_ROOT, 'assets', 'sprites', 'female', 'doux', 'base', 'idle.png'), 24, 24)
         self.move_sprites = self.load_sprites(os.path.join(PROJECT_ROOT, 'assets', 'sprites', 'female', 'doux', 'base', 'move.png'), 24, 24)
         self.jump_sprites = self.load_sprites(os.path.join(PROJECT_ROOT, 'assets', 'sprites', 'female', 'doux', 'base', 'jump.png'), 24, 24)
         self.bite_sprites = self.load_sprites(os.path.join(PROJECT_ROOT, 'assets', 'sprites', 'female', 'doux', 'base', 'bite.png'), 24, 24)
 
-        # set the initial states
+        # Set the initial states
         self.current_sprites = self.idle_sprites
         self.current_frame = 0
         self.image = self.current_sprites[self.current_frame]
@@ -25,9 +24,8 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.rect.inflate(-37.5, -10)  # Reduce width by 37.5 pixels and height by 25 pixels
         self.rect.center = (400, SCREEN_HEIGHT - 500)
         self.current_level = 1
-        
 
-        # variables for player movement and actions
+        # Variables for player movement and actions
         self.is_jumping = False
         self.is_on_platform = False
         self.velocity_y = 0
@@ -39,24 +37,24 @@ class Player(pygame.sprite.Sprite):
         self.can_double_jump = False  # Start with double jump disabled
         self.can_move_left = True
 
-        # animation timing
+        # Animation timing
         self.animation_delay = 10
         self.animation_counter = 0
-        self.bite_animation_playing = False  # to track bite animation
+        self.bite_animation_playing = False  # To track bite animation
         self.screen_height = SCREEN_HEIGHT
 
-        # health
+        # Health
         self.hp = Health()
 
         self.score = 0  # Initialize score
 
     def load_sprites(self, sprite_sheet_path, frame_width, frame_height):
-        # load the sprite sheet
+        # Load the sprite sheet
         sprite_sheet = pygame.image.load(sprite_sheet_path)
         sheet_width, sheet_height = sprite_sheet.get_size()
-        num_frames = sheet_width // frame_width  # calculate the number of frames based on the width of the sheet
+        num_frames = sheet_width // frame_width  # Calculate the number of frames based on the width of the sheet
         frames = []
-        
+
         for i in range(num_frames):
             frame = sprite_sheet.subsurface(pygame.Rect(i * frame_width, 0, frame_width, frame_height))
             frame = pygame.transform.scale(frame, (100, 100))
@@ -89,7 +87,7 @@ class Player(pygame.sprite.Sprite):
         # Store the current sprite state for comparison later
         previous_sprites = self.current_sprites
 
-        # Determine which animation to use
+        # Determine which animation to use (allow biting while jumping)
         if pressed_keys[pygame.K_SPACE]:  # Bite attack logic
             self.current_sprites = self.bite_sprites  # Use bite animation
             self.bite_animation_playing = True
@@ -138,8 +136,6 @@ class Player(pygame.sprite.Sprite):
             self.velocity_y = self.jump_strength
             self.can_double_jump = False
 
-
-
     def Apply_Gravity(self, SCREEN_HEIGHT):
         if not self.is_on_platform:
             self.velocity_y += self.gravity
@@ -148,14 +144,11 @@ class Player(pygame.sprite.Sprite):
             self.is_jumping = False
             self.can_double_jump = False  # Reset double jump on landing
 
-
-    def Take_Damage(self):  # reduce player health
+    def Take_Damage(self):  # Reduce player health
         self.hp.Take_Damage()
 
-    
-
     def Draw(self, surface, camera, show_debug_rects=False):
-       # If camera is not passed, or it's a lambda function for cutscenes, skip the camera logic
+        # If camera is not passed, or it's a lambda function for cutscenes, skip the camera logic
         if hasattr(camera, 'apply'):
             surface.blit(self.image, camera.apply(self.rect))
         else:
@@ -172,7 +165,7 @@ class Player(pygame.sprite.Sprite):
 
     def get_score(self):
         return self.score
-    
+
     def update_score(self, username, score):
         Database().add_score(username, score)
 
