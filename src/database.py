@@ -1,3 +1,6 @@
+# Database class handles interactions with the MongoDB database, including user 
+# management and score tracking.
+
 from dotenv import load_dotenv  # Importing load_dotenv to load environment variables from a .env file
 import os  # Importing os to interact with the operating system
 from pymongo import MongoClient  # Importing MongoClient to interact with MongoDB
@@ -20,7 +23,7 @@ class Database():
             return False
         
     def add_user(self, username):
-
+        """Adds a new user to the database."""
         self.users_collection.insert_one({
             "username": username,
         })
@@ -28,6 +31,7 @@ class Database():
         print("User added successfully!")
 
     def add_score(self, username, score):
+        """Updates the score of an existing user in the database."""
         self.users_collection.update_one(
             {"username": username},
             {"$set": {"score": score}}
@@ -36,10 +40,12 @@ class Database():
         print("Score added successfully!")
 
     def get_score(self, username):
+        """Retrieves the score of a user from the database."""
         user = self.users_collection.find_one({"username": username})
         return user.get('score')
     
     def get_dict_of_all_scores_and_users(self):
+        """Returns a dictionary of all users and their scores."""
         users = self.users_collection.find({})
         scores = {}
         for user in users:

@@ -1,8 +1,7 @@
 # Dino Game
 
 ## Overview
-
-
+This program is a simple pygame platformer. It includes a player that can move, jump, and collide with platforms and enemies. The game uses sprite-based animation and handles gravity, collision detection, and basic physics for platforming.
 
 [Software Demo Video](http://youtube.link.goes.here)
 
