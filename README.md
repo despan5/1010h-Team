@@ -31,8 +31,13 @@
 - [Invent with Python - Pygame Chapter](https://inventwithpython.com/pygame/chapter2.html)
 
 ## Future Work
-
-{Make a list of things that you need to fix, improve, and add in the future.}
-- Item 1
-- Item 2
-- Item 3
+  
+- **Enhance Player Interaction**: Improve collision detection between the dino and the enemies to make the game more responsive and fair.  
+- **Add New Obstacles**: Introduce additional enemy types or environmental hazards (e.g., rolling rocks or falling meteors) to increase gameplay variety.  
+- **Improve Scoring System**: Implement a score multiplier for consecutive successful dodges and add a high score leaderboard.  
+- **Optimize Performance**: Refactor code for better efficiency, ensuring smoother gameplay, especially when multiple enemies are active.  
+- **Add Power-Ups**: Introduce power-ups like temporary invincibility, slow motion, or double jumps to enhance gameplay dynamics.  
+- **Enhance Visuals**: Add background animations, parallax scrolling, and improved sprite designs to make the game more visually appealing.  
+- **Implement Audio Effects**: Add sound effects for jumps, collisions, and background music to make the game more engaging.  
+- **Save Game Progress**: Allow players to save and load their progress, including high scores and achievements.  
+- **Responsive Controls**: Improve player input handling to ensure responsive controls across devices.  
