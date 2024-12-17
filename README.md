@@ -4,7 +4,7 @@
 
 
 
-[Software Demo Video](http://youtube.link.goes.here)
+[Software Demo Video](https://youtu.be/E4lsHrm-u94)
 
 ## Development Environment
 

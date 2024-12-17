@@ -44,8 +44,8 @@ class Engine:
 
         # Enemy configurations for 5 levels
         self.enemy_configs = {
-            1: [{"x": 890, "y": 390, "movement_range": 125, "speed": 2},
-                {"x": 1500, "y": 220, "movement_range": 150, "speed": 4}],
+            1: [{"x": 890, "y": 390, "movement_range": 125, "speed": 8},
+                {"x": 1500, "y": 220, "movement_range": 150, "speed": 8}],
             2: [{"x": 1600, "y": 525, "movement_range": 350, "speed": 6},
                 {"x": 1125, "y": 80, "movement_range": 175, "speed": 4},
                 {"x": 2350, "y": 220, "movement_range": 175, "speed": 6},
